@@ -37,7 +37,7 @@ export default function DirectorDashboard(){
 
     return(
         <div className="flex flex-col gap-4">
-            <h2 className="text-3xl font-semibold">Dashboard</h2>
+            <h2 className="text-2xl font-semibold">Dashboard</h2>
             <div className="grid grid-cols-3 gap-2">
                 {revenues.map((revenue) => (
                     <StatCard key={revenue.id} {...revenue} />
@@ -47,6 +47,7 @@ export default function DirectorDashboard(){
           title="Net Income"
           data={sampleData.map((d) => ({ ...d, value: Math.round(d.value * 0.6) }))}
           stroke="#F59E0B"
+          height={280}
         />
         </div>
     )

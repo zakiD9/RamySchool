@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, FilterIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface FilterOption {
@@ -36,11 +36,11 @@ export function Filter({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
-          className={cn("flex items-center gap-2 capitalize", className)}
+          variant="secondary"
+          className={cn("flex items-center rounded-full gap-2 capitalize", className)}
         >
-          {label}: {selected?.label || "All"}
-          <ChevronDown className="h-4 w-4 opacity-70" />
+          Filter
+          <FilterIcon className="h-4 w-4 opacity-70" />
         </Button>
       </DropdownMenuTrigger>
 

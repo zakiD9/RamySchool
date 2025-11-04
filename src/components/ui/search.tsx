@@ -25,7 +25,7 @@ export function SearchInput({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="pl-9 pr-9"
+        className="pl-9 rounded-full pr-9"
       />
       {value && (
         <button
