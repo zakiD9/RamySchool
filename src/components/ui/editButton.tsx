@@ -1,8 +1,11 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { EditIcon } from "lucide-react";
+interface EditButtonProps {
+  onClick?: () => void;
+}
 
-export default function EditButton({ onClick }: { onClick: () => void }) {
+export default function EditButton({ onClick }: EditButtonProps) {
   return (
     <Button 
       variant="outline" 

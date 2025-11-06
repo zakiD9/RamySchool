@@ -1,8 +1,9 @@
 import { Filter } from "@/components/ui/filter";
 import { SearchInput } from "@/components/ui/search";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GroupsTable from "./GroupsTable";
 import GroupDialog from "./GroupPopUp";
+import { useGroupStore } from "@/stores/groupStore";
 
 const teacherRevenueFilters = [
     { label: "All", value: "all" },
@@ -11,9 +12,6 @@ const teacherRevenueFilters = [
     { label: "Today", value: "today" },
   ];
 
-const groups = [
-  { id: 1, groupName: "Group A", teacherName: "Mr. Ali", students: ["Ahmed", "Sara"] },
-];
 
 
 
@@ -21,7 +19,14 @@ const groups = [
 
 export default function GroupsSection(){
     const [filter, setFilter] = useState("all");
+    const { groups, fetchGroups, loading, error } = useGroupStore();
 
+    useEffect(() => {
+    fetchGroups();
+  }, [fetchGroups]);
+
+  if (loading) return <p className="text-center mt-10">Loading groups...</p>;
+  if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
 
     return(
         <div className="flex flex-col gap-4">
@@ -29,7 +34,6 @@ export default function GroupsSection(){
                     <div className="flex justify-between items-center">
                     <GroupDialog
                       mode="add"
-                      allStudents={["Ahmed B.", "Youssef M.", "Sara K.", "Nadia R."]}
                       onSubmit={(group) => console.log("Added:", group)}
                     />
                         <div className="gap-2 flex items-center">

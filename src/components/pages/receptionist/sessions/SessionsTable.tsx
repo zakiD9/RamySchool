@@ -7,14 +7,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import EditButton from "@/components/ui/editButton";
 import DeleteButton from "@/components/ui/deleteButton";
 import SessionsDialog from "./SessionPopUp";
+import { useSessionStore } from "@/stores/sessionsStore";
 
-interface Session {
+export interface Session {
   id: number;
-  date: string; // session date
-  price: number; // session price
+  type: number;
+  dateSession: string;
+  price: number;
   groupName: string;
   teacherName: string;
 }
@@ -24,6 +25,11 @@ interface SessionsTableProps {
 }
 
 export default function SessionsTable({ data }: SessionsTableProps) {
+  const{deleteSession}=useSessionStore();
+
+  const handleDelete = async (id: number) => {
+    await deleteSession(id);
+  }
   return (
     <div className="bg-white rounded-xl border shadow-sm p-4">
       <Table>
@@ -42,7 +48,7 @@ export default function SessionsTable({ data }: SessionsTableProps) {
           {data.map((session) => (
             <TableRow key={session.id}>
               <TableCell>{session.id}</TableCell>
-              <TableCell className="font-medium">{session.date}</TableCell>
+              <TableCell className="font-medium">{session.dateSession}</TableCell>
               <TableCell className="text-right">{session.price.toLocaleString("en-DZ")}</TableCell>
               <TableCell>{session.groupName}</TableCell>
               <TableCell>{session.teacherName}</TableCell>
@@ -50,7 +56,7 @@ export default function SessionsTable({ data }: SessionsTableProps) {
 <SessionsDialog
   mode="edit"
   defaultValues={session}
-/>                <DeleteButton />
+/>                <DeleteButton onClick={()=>handleDelete(session.id)}/>
               </TableCell>
             </TableRow>
           ))}

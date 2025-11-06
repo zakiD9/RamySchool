@@ -10,13 +10,14 @@ import {
 import DeleteButton from "@/components/ui/deleteButton";
 import { Status } from "@/components/ui/status";
 import PresenceDialog from "./PresencePopUp";
+import { usePresenceStore } from "@/stores/presencesStore";
 
-interface Presence {
-  id: number; // session ID
+export interface Presence {
+  id: number;
   studentName: string;
   groupName: string;
   sessionDate: string;
-  present: boolean;
+  isPresent: boolean;
 }
 
 interface PresencesTableProps {
@@ -24,6 +25,11 @@ interface PresencesTableProps {
 }
 
 export default function PresencesTable({ data }: PresencesTableProps) {
+  const { removePresence } = usePresenceStore();
+  const handleDelete = async (id: number) => {
+    await removePresence(id);
+  };
+
   return (
     <div className="bg-white rounded-xl border shadow-sm p-4">
       <Table>
@@ -47,13 +53,13 @@ export default function PresencesTable({ data }: PresencesTableProps) {
               <TableCell>{presence.sessionDate}</TableCell>
               <TableCell className="text-center">
                 <Status
-                  value={presence.present ? "active" : "inactive"}
-                  label={presence.present ? "Present" : "Absent"}
+                  value={presence.isPresent ? "active" : "inactive"}
+                  label={presence.isPresent ? "Present" : "Absent"}
                 />
               </TableCell>
               <TableCell className="flex gap-1 justify-end">
-                <PresenceDialog mode="edit"  />
-                <DeleteButton />
+                <PresenceDialog mode="edit" defaultValues={presence}  />
+                <DeleteButton onClick={()=>{handleDelete(presence.id)}}/>
               </TableCell>
             </TableRow>
           ))}

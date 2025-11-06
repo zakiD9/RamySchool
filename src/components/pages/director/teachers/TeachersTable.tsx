@@ -10,12 +10,40 @@ import {
 import ViewButton from "@/components/ui/viewButton"
 import TeacherViewDialog from "./TeacherPopUp"
 
-interface Teacher {
-  id: number
-  teacherName: string
-  salary: number
-  percentage: number
+export interface Presence {
+  id: number;
+  studentName: string;
+  groupName: string;
+  sessionDate: string;
+  isPresent: boolean;
 }
+
+export interface Student {
+  id: number;
+  name: string;
+  phoneNumber: string;
+  groupId: number;
+  groupName: string;
+  teacherName: string;
+  presences: Presence[];
+}
+
+export interface Group {
+  id: number;
+  name: string;
+  teacherId: number;
+  teacherName: string;
+  students: Student[];
+}
+
+export interface Teacher {
+  id: number;
+  fullName: string;
+  salary: number;
+  percentage: number;
+  groups: Group[];
+}
+
 
 interface TeachersTableProps {
   data: Teacher[]
@@ -40,7 +68,7 @@ export default function TeachersTable({ data }: TeachersTableProps) {
             <TableRow key={teacher.id}>
               <TableCell>{teacher.id}</TableCell>
               <TableCell className="font-medium">
-                {teacher.teacherName}
+                {teacher.fullName}
               </TableCell>
               <TableCell className="text-right">
                 {teacher.salary.toLocaleString("en-DZ")}

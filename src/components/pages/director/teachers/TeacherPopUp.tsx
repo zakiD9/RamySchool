@@ -6,13 +6,14 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ViewButton from "@/components/ui/viewButton";
+import { useFinanceStore } from "@/stores/revenuesStore";
 
 interface TeacherViewDialogProps {
   teacher: {
     id: number;
-    teacherName: string;
+    fullName: string;
     salary: number;
     percentage: number;
   };
@@ -20,6 +21,14 @@ interface TeacherViewDialogProps {
 
 export default function TeacherViewDialog({ teacher }: TeacherViewDialogProps) {
   const [open, setOpen] = useState(false);
+  const { getTeacherRevenue, teacherRevenue, loading } = useFinanceStore();
+
+  // ✅ Fetch teacher revenue when the dialog opens
+  useEffect(() => {
+    if (open) {
+      getTeacherRevenue(teacher.id);
+    }
+  }, [open, teacher.id, getTeacherRevenue]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -43,7 +52,7 @@ export default function TeacherViewDialog({ teacher }: TeacherViewDialogProps) {
 
           <div className="flex justify-between">
             <span className="font-semibold">Name:</span>
-            <span>{teacher.teacherName}</span>
+            <span>{teacher.fullName}</span>
           </div>
 
           <div className="flex justify-between">
@@ -54,6 +63,19 @@ export default function TeacherViewDialog({ teacher }: TeacherViewDialogProps) {
           <div className="flex justify-between">
             <span className="font-semibold">Percentage:</span>
             <span>{teacher.percentage}%</span>
+          </div>
+
+          <div className="flex justify-between border-t pt-3">
+            <span className="font-semibold">Revenue:</span>
+            {loading ? (
+              <span className="text-gray-500">Loading...</span>
+            ) : teacherRevenue !== null ? (
+              <span className="text-green-600 font-medium">
+                {teacherRevenue.toLocaleString("en-DZ")} DZD
+              </span>
+            ) : (
+              <span className="text-red-500">Failed to load</span>
+            )}
           </div>
         </div>
       </DialogContent>

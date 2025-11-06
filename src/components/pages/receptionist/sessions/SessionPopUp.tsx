@@ -12,67 +12,70 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { PlusIcon } from "lucide-react";
 import EditButton from "@/components/ui/editButton";
+import { useGroupStore } from "@/stores/groupStore";
+import { useSessionStore } from "@/stores/sessionsStore";
 
 interface SessionsDialogProps {
   mode: "add" | "edit";
-  onSubmit: (session: {
-    date: string;
-    price: number;
-    groupName: string;
-    teacherName: string;
-  }) => void;
   defaultValues?: {
-    date: string;
+    id?: number;
+    type: number;
+    dateSession: string;
     price: number;
-    groupName: string;
-    teacherName: string;
+    groupId: number;
   };
 }
 
-export default function SessionsDialog({
-  mode,
-  onSubmit,
-  defaultValues,
-}: SessionsDialogProps) {
+export default function SessionsDialog({ mode, defaultValues }: SessionsDialogProps) {
   const [open, setOpen] = useState(false);
+  const { groups, fetchGroups } = useGroupStore();
+  const { addSession, updateSession } = useSessionStore();
 
   const [form, setForm] = useState({
-    date: "",
+    type: 0,
+    dateSession: "",
     price: "",
-    groupName: "",
-    teacherName: "",
+    groupId: "",
   });
+
+  useEffect(() => {
+    if (open && groups.length === 0) fetchGroups();
+  }, [open, fetchGroups, groups.length]);
 
   useEffect(() => {
     if (defaultValues) {
       setForm({
-        date: defaultValues.date || "",
-        price: defaultValues.price.toString() || "",
-        groupName: defaultValues.groupName || "",
-        teacherName: defaultValues.teacherName || "",
+        type: defaultValues.type,
+        dateSession: defaultValues.dateSession.split("T")[0],
+        price: defaultValues.price.toString(),
+        groupId: defaultValues.groupId.toString(),
       });
     } else {
       setForm({
-        date: "",
+        type: 0,
+        dateSession: "",
         price: "",
-        groupName: "",
-        teacherName: "",
+        groupId: "",
       });
     }
   }, [defaultValues, open]);
 
-  const handleSubmit = () => {
-    if (!form.date || !form.price || !form.groupName || !form.teacherName)
-      return;
+  const handleSubmit = async () => {
+    if (!form.dateSession || !form.price || !form.groupId) return;
 
     const sessionData = {
-      date: form.date,
+      type: form.type,
+      dateSession: new Date(form.dateSession).toISOString(),
       price: parseFloat(form.price),
-      groupName: form.groupName,
-      teacherName: form.teacherName,
+      groupId: parseInt(form.groupId),
     };
 
-    onSubmit(sessionData);
+    if (mode === "add") {
+      await addSession(sessionData);
+    } else if (defaultValues?.id) {
+      await updateSession(defaultValues.id, sessionData);
+    }
+
     setOpen(false);
   };
 
@@ -97,11 +100,27 @@ export default function SessionsDialog({
 
         <div className="flex flex-col gap-3 py-2">
           <div>
+            <Label>Session Type</Label>
+            <select
+              value={form.type}
+              onChange={(e) =>
+                setForm({ ...form, type: parseInt(e.target.value) })
+              }
+              className="border rounded-md w-full px-2 py-1 text-sm"
+            >
+              <option value={0}>Paid Session</option>
+              <option value={1}>Free Session</option>
+            </select>
+          </div>
+
+          <div>
             <Label>Session Date</Label>
             <Input
               type="date"
-              value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
+              value={form.dateSession}
+              onChange={(e) =>
+                setForm({ ...form, dateSession: e.target.value })
+              }
             />
           </div>
 
@@ -112,25 +131,24 @@ export default function SessionsDialog({
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
               placeholder="e.g. 1500"
+              disabled={form.type === 1} // disable for free sessions
             />
           </div>
 
           <div>
-            <Label>Group Name</Label>
-            <Input
-              value={form.groupName}
-              onChange={(e) => setForm({ ...form, groupName: e.target.value })}
-              placeholder="e.g. Group A"
-            />
-          </div>
-
-          <div>
-            <Label>Teacher Name</Label>
-            <Input
-              value={form.teacherName}
-              onChange={(e) => setForm({ ...form, teacherName: e.target.value })}
-              placeholder="e.g. Mr. Ali"
-            />
+            <Label>Group</Label>
+            <select
+              value={form.groupId}
+              onChange={(e) => setForm({ ...form, groupId: e.target.value })}
+              className="border rounded-md w-full px-2 py-1 text-sm"
+            >
+              <option value="">Select group</option>
+              {groups.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

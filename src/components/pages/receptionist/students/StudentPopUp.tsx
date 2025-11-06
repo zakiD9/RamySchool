@@ -14,73 +14,70 @@ import { PlusIcon } from "lucide-react";
 import EditButton from "@/components/ui/editButton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Status } from "@/components/ui/status";
+import { useGroupStore } from "@/stores/groupStore";
+import { useStudentsStore } from "@/stores/studentsStore";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { StudentResponse } from "@/services/studentsService";
 
 interface StudentsDialogProps {
   mode: "add" | "edit";
-  onSubmit: (student: {
-    studentName: string;
-    phoneNumber: string;
-    groupName: string;
-    teacherName: string;
-    presences: number;
-  }) => void;
-  defaultValues?: {
-    studentName: string;
-    phoneNumber: string;
-    groupName: string;
-    teacherName: string;
-    presences: boolean[];
-  };
+  defaultValues?: StudentResponse;
 }
 
-export default function StudentsDialog({
-  mode,
-  onSubmit,
-  defaultValues,
-}: StudentsDialogProps) {
+export default function StudentsDialog({ mode, defaultValues }: StudentsDialogProps) {
   const [open, setOpen] = useState(false);
+  const { groups, fetchGroups } = useGroupStore();
+  const { addStudent, editStudent } = useStudentsStore();
 
   const [form, setForm] = useState({
-    studentName: "",
+    name: "",
     phoneNumber: "",
-    groupName: "",
-    teacherName: "",
-    presences: 0,
+    groupId: 0,
   });
 
+  // ✅ Fetch groups when the dialog opens
+  useEffect(() => {
+    if (open) fetchGroups();
+  }, [open, fetchGroups]);
+
+  // ✅ Initialize form when editing
   useEffect(() => {
     if (defaultValues) {
       setForm({
-        studentName: defaultValues.studentName || "",
+        name: defaultValues.name || "",
         phoneNumber: defaultValues.phoneNumber || "",
-        groupName: defaultValues.groupName || "",
-        teacherName: defaultValues.teacherName || "",
-        presences: defaultValues.presences || 0,
+        groupId: defaultValues.groupId || 0,
       });
     } else {
-      setForm({
-        studentName: "",
-        phoneNumber: "",
-        groupName: "",
-        teacherName: "",
-        presences: 0,
-      });
+      setForm({ name: "", phoneNumber: "", groupId: 0 });
     }
   }, [defaultValues, open]);
 
-  const handleSubmit = () => {
-    if (!form.studentName || !form.phoneNumber || !form.groupName || !form.teacherName) return;
+  const handleSubmit = async () => {
+    if (!form.name || !form.phoneNumber || !form.groupId) return;
 
-    const studentData = {
-      studentName: form.studentName,
+    const payload = {
+      name: form.name,
       phoneNumber: form.phoneNumber,
-      groupName: form.groupName,
-      teacherName: form.teacherName,
-      presences: form.presences,
+      groupId: Number(form.groupId),
     };
 
-    onSubmit(studentData);
-    setOpen(false);
+    try {
+      if (mode === "add") {
+        await addStudent(payload);
+      } else if (mode === "edit" && defaultValues) {
+        await editStudent(defaultValues.id, payload);
+      }
+      setOpen(false);
+    } catch (err) {
+      console.error("Error saving student:", err);
+    }
   };
 
   return (
@@ -106,8 +103,8 @@ export default function StudentsDialog({
           <div>
             <Label>Student Name</Label>
             <Input
-              value={form.studentName}
-              onChange={(e) => setForm({ ...form, studentName: e.target.value })}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="e.g. Ahmed B."
             />
           </div>
@@ -121,42 +118,52 @@ export default function StudentsDialog({
             />
           </div>
 
+          {/* ✅ Group selection */}
           <div>
-            <Label>Group Name</Label>
-            <Input
-              value={form.groupName}
-              onChange={(e) => setForm({ ...form, groupName: e.target.value })}
-              placeholder="e.g. Group A"
-            />
+            <Label>Group</Label>
+            <Select
+              value={form.groupId ? String(form.groupId) : ""}
+              onValueChange={(val) =>
+                setForm({ ...form, groupId: Number(val) })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a group" />
+              </SelectTrigger>
+              <SelectContent>
+                {groups.map((group) => (
+                  <SelectItem key={group.id} value={String(group.id)}>
+                    {group.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div>
-            <Label>Teacher Name</Label>
-            <Input
-              value={form.teacherName}
-              onChange={(e) => setForm({ ...form, teacherName: e.target.value })}
-              placeholder="e.g. Mr. Ali"
-            />
-          </div>
-
-          <div>
-            <Label>Presences</Label>
-<div className="flex gap-1">
-  {defaultValues?.presences?.map((p, i) => (
-  <TooltipProvider>
-
-    <Tooltip key={i}>
-      <TooltipTrigger asChild>
-        <Status value={p ? "success" : "error"} size="sm" label="" />
-      </TooltipTrigger>
-      <TooltipContent>{p ? "Present" : "Absent"}</TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-
-  ))}
-</div>
-
-          </div>
+          {/* ✅ Show presences only in edit mode */}
+          {mode === "edit" && defaultValues?.presences?.length ? (
+            <div>
+              <Label>Recent Presences</Label>
+              <div className="flex gap-1 mt-1">
+                <TooltipProvider>
+                  {defaultValues.presences.slice(-5).map((p, i) => (
+                    <Tooltip key={i}>
+                      <TooltipTrigger asChild>
+                        <Status
+                          value={p.isPresent ? "success" : "error"}
+                          size="sm"
+                          label=""
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {p.isPresent ? "Present" : "Absent"}
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </TooltipProvider>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <DialogFooter>

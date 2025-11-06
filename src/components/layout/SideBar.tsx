@@ -8,8 +8,9 @@ import {
   ArrowRight,
 } from "lucide-react"
 import { FC, useState } from "react"
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 import LogoutDialog from "../pages/authentication/LogOut"
+import { useAuthStore } from "@/stores/authStore"
 
 type Role = "director" | "receptionist"
 
@@ -36,11 +37,13 @@ const receptionistMenu: MenuItem[] = [
 
 export default function Sidebar({ role }: { role: Role }) {
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+  const logout = useAuthStore((state) => state.logout);
   const menuItems = role === "director" ? directorMenu : receptionistMenu
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    alert("Logging out...");
-    setIsLogoutOpen(false); 
+    logout();
+    navigate("/login"); 
   };
 
 

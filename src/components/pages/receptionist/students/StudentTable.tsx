@@ -10,22 +10,25 @@ import {
 import DeleteButton from "@/components/ui/deleteButton";
 import StudentsDialog from "./StudentPopUp";
 import { Status } from "@/components/ui/status";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-interface Student {
-  id: number;
-  studentName: string;
-  phoneNumber: string;
-  groupName: string;
-  teacherName: string;
-  presences: boolean[];
-}
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { StudentResponse } from "@/services/studentsService";
+import { useStudentsStore } from "@/stores/studentsStore";
 
 interface StudentsTableProps {
-  data: Student[];
+  data: StudentResponse[];
 }
 
 export default function StudentsTable({ data }: StudentsTableProps) {
+  const { removeStudent } = useStudentsStore(); 
+
+  const handleDelete = async (id: number) => {
+    await removeStudent(id);
+  };
   return (
     <div className="bg-white rounded-xl border shadow-sm p-4">
       <Table>
@@ -45,32 +48,39 @@ export default function StudentsTable({ data }: StudentsTableProps) {
           {data.map((student) => (
             <TableRow key={student.id}>
               <TableCell>{student.id}</TableCell>
-              <TableCell className="font-medium">{student.studentName}</TableCell>
+              <TableCell className="font-medium">{student.name}</TableCell>
               <TableCell>{student.phoneNumber}</TableCell>
               <TableCell>{student.groupName}</TableCell>
               <TableCell>{student.teacherName}</TableCell>
-<TableCell className="text-right">
-  <TooltipProvider>
-    <div className="flex justify-end gap-1">
-      {student.presences.slice(-5).map((presence: boolean, i: number) => (
-        <Tooltip key={i}>
-          <TooltipTrigger asChild>
-            <Status
-              value={presence ? "success" : "error"}
-              size="sm"
-              label=""
-              className="cursor-default"
-            />
-          </TooltipTrigger>
-          <TooltipContent>{presence ? "Present" : "Absent"}</TooltipContent>
-        </Tooltip>
-      ))}
-    </div>
-  </TooltipProvider>
-</TableCell>
+
+              {/* ✅ Fix presences */}
+              <TableCell className="text-right">
+                <TooltipProvider>
+                  <div className="flex justify-end gap-1">
+                    {student.presences
+                      ?.slice(-5)
+                      .map((presence, i) => (
+                        <Tooltip key={i}>
+                          <TooltipTrigger asChild>
+                            <Status
+                              value={presence.isPresent ? "success" : "error"}
+                              size="sm"
+                              label=""
+                              className="cursor-default"
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {presence.isPresent ? "Present" : "Absent"}
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                  </div>
+                </TooltipProvider>
+              </TableCell>
+
               <TableCell className="flex gap-1 justify-end">
                 <StudentsDialog defaultValues={student} mode="edit" />
-                <DeleteButton />
+                <DeleteButton onClick={() => handleDelete(student.id)} />
               </TableCell>
             </TableRow>
           ))}

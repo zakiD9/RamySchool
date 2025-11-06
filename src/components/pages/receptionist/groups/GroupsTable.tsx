@@ -7,15 +7,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import EditButton from "@/components/ui/editButton";
 import DeleteButton from "@/components/ui/deleteButton";
 import GroupDialog from "./GroupPopUp";
+import { useGroupStore } from "@/stores/groupStore";
+
+interface Student {
+  id: number;
+  name: string;
+}
 
 interface Group {
   id: number;
-  groupName: string;
+  name: string;
+  teacherId: number;
   teacherName: string;
-  students: string[]; // list of student names
+  students: Student[];
 }
 
 interface GroupsTableProps {
@@ -23,9 +29,19 @@ interface GroupsTableProps {
 }
 
 export default function GroupsTable({ data }: GroupsTableProps) {
-  const truncateStudents = (students: string[], max = 3) => {
-    if (students.length <= max) return students.join(", ");
-    return students.slice(0, max).join(", ") + "…";
+  const { removeGroup } = useGroupStore();
+
+  const truncateStudents = (students: Student[], max = 3) => {
+    if (students.length === 0) return "—";
+    const names = students.map((s) => s.name);
+    if (names.length <= max) return names.join(", ");
+    return names.slice(0, max).join(", ") + "…";
+  };
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm("Are you sure you want to delete this group?")) {
+      await removeGroup(id);
+    }
   };
 
   return (
@@ -45,21 +61,24 @@ export default function GroupsTable({ data }: GroupsTableProps) {
           {data.map((group) => (
             <TableRow key={group.id}>
               <TableCell>{group.id}</TableCell>
-              <TableCell className="font-medium">{group.groupName}</TableCell>
+              <TableCell className="font-medium">{group.name}</TableCell>
               <TableCell>{group.teacherName}</TableCell>
+
               <TableCell>{truncateStudents(group.students)}</TableCell>
+
               <TableCell className="flex gap-1 justify-end">
-              <GroupDialog
-                mode="edit"
-                defaultValues={{
-                  groupName: "Group A",
-                  teacherName: "Mr. Ali",
-                  students: ["Ahmed B.", "Sara K."],
-               }}
-               allStudents={["Ahmed B.", "Youssef M.", "Sara K.", "Nadia R."]}
-                onSubmit={(updated) => console.log("Updated:", updated)}
-              />
-              <DeleteButton />
+                <GroupDialog
+                  mode="edit"
+                  defaultValues={{
+                    id: group.id,
+                    groupName: group.name,
+                    teacherId: group.teacherId,
+                    teacherName: group.teacherName,
+                    students: group.students,
+                  }}
+                  onSubmit={(updated) => console.log("Updated:", updated)}
+                />
+                <DeleteButton onClick={() => handleDelete(group.id)} />
               </TableCell>
             </TableRow>
           ))}

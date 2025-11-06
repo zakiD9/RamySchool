@@ -6,61 +6,94 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
 import { PlusIcon } from "lucide-react";
 import EditButton from "@/components/ui/editButton";
+import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { usePresenceStore } from "@/stores/presencesStore";
+import api from "@/lib/api";
+
+interface Student {
+  id: number;
+  name: string;
+}
+
+interface Session {
+  id: number;
+  date: string;
+}
 
 interface PresenceDialogProps {
   mode: "add" | "edit";
-  onSubmit: (presence: {
-    studentName: string;
-    groupName: string;
-    sessionDate: string;
-    present: boolean;
-  }) => void;
   defaultValues?: {
+    id: number;
     studentName: string;
     groupName: string;
     sessionDate: string;
-    present: boolean;
+    isPresent: boolean;
   };
 }
 
-export default function PresenceDialog({
-  mode,
-  onSubmit,
-  defaultValues,
-}: PresenceDialogProps) {
+export default function PresenceDialog({ mode, defaultValues }: PresenceDialogProps) {
   const [open, setOpen] = useState(false);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const { addPresence, updatePresence } = usePresenceStore();
 
   const [form, setForm] = useState({
-    studentName: "",
-    groupName: "",
-    sessionDate: "",
-    present: false,
+    studentId: 0,
+    sessionId: 0,
+    isPresent: false,
   });
 
   useEffect(() => {
-    if (defaultValues) {
-      setForm(defaultValues);
-    } else {
+    if (open && mode === "add") {
+      fetchStudents();
+      fetchSessions();
+    }
+
+    if (defaultValues && mode === "edit") {
       setForm({
-        studentName: "",
-        groupName: "",
-        sessionDate: "",
-        present: false,
+        studentId: 0,
+        sessionId: 0,
+        isPresent: defaultValues.isPresent,
       });
     }
-  }, [defaultValues, open]);
+  }, [open, mode, defaultValues]);
 
-  const handleSubmit = () => {
-    if (!form.studentName || !form.groupName || !form.sessionDate) return;
-    onSubmit(form);
-    setOpen(false);
+  const fetchStudents = async () => {
+    try {
+      const res = await api.get("/Students");
+      setStudents(res.data);
+    } catch (err) {
+      console.error("Failed to fetch students", err);
+    }
+  };
+
+  const fetchSessions = async () => {
+    try {
+      const res = await api.get("/Sessions");
+      setSessions(res.data);
+    } catch (err) {
+      console.error("Failed to fetch sessions", err);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (mode === "add") {
+        if (!form.studentId || !form.sessionId) return;
+        await addPresence(form);
+      } else if (defaultValues) {
+        await updatePresence(defaultValues.id, form);
+      }
+      setOpen(false);
+    } catch (err) {
+      console.error("Error saving presence:", err);
+    }
   };
 
   return (
@@ -82,52 +115,76 @@ export default function PresenceDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-3 py-2">
+        <div className="flex flex-col gap-4 py-2">
           {mode === "add" ? (
             <>
-              <div>
-                <Label>Student Name</Label>
-                <Input
-                  value={form.studentName}
-                  onChange={(e) =>
-                    setForm({ ...form, studentName: e.target.value })
+              
+              <div className="flex flex-col gap-1">
+                <Label>Student</Label>
+                <Select
+                  value={form.studentId ? String(form.studentId) : ""}
+                  onValueChange={(value) =>
+                    setForm({ ...form, studentId: Number(value) })
                   }
-                  placeholder="e.g. Ahmed B."
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a student" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {students.map((student) => (
+                      <SelectItem key={student.id} value={String(student.id)}>
+                        {student.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div>
-                <Label>Group Name</Label>
-                <Input
-                  value={form.groupName}
-                  onChange={(e) =>
-                    setForm({ ...form, groupName: e.target.value })
+              
+              <div className="flex flex-col gap-1">
+                <Label>Session</Label>
+                <Select
+                  value={form.sessionId ? String(form.sessionId) : ""}
+                  onValueChange={(value) =>
+                    setForm({ ...form, sessionId: Number(value) })
                   }
-                  placeholder="e.g. Group A"
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a session" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sessions.map((session) => (
+                      <SelectItem key={session.id} value={String(session.id)}>
+                        {session.date}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div>
-                <Label>Session Date</Label>
-                <Input
-                  type="date"
-                  value={form.sessionDate}
-                  onChange={(e) =>
-                    setForm({ ...form, sessionDate: e.target.value })
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isPresent"
+                  checked={form.isPresent}
+                  onCheckedChange={(checked) =>
+                    setForm({ ...form, isPresent: !!checked })
                   }
                 />
+                <Label htmlFor="isPresent">Present</Label>
               </div>
             </>
           ) : (
+            
             <div className="flex items-center space-x-2 mt-2">
               <Checkbox
-                id="presence"
-                checked={form.present}
+                id="isPresent"
+                checked={form.isPresent}
                 onCheckedChange={(checked) =>
-                  setForm({ ...form, present: !!checked })
+                  setForm({ ...form, isPresent: !!checked })
                 }
               />
-              <Label htmlFor="presence">Present</Label>
+              <Label htmlFor="isPresent">Present</Label>
             </div>
           )}
         </div>

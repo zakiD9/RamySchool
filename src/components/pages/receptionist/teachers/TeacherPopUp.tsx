@@ -12,66 +12,55 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { PlusIcon } from "lucide-react";
 import EditButton from "@/components/ui/editButton";
+import { useTeacherStore } from "@/stores/teachersStore";
 
 interface TeachersDialogProps {
   mode: "add" | "edit";
-  onSubmit: (teacher: {
-    teacherName: string;
-    salary: number;
-    percentage: number;
-    groups: string[];
-  }) => void;
   defaultValues?: {
-    teacherName: string;
+    id?: number;
+    fullName: string;
     salary: number;
     percentage: number;
-    groups: string[];
   };
 }
 
-export default function TeachersDialog({
-  mode,
-  onSubmit,
-  defaultValues,
-}: TeachersDialogProps) {
+export default function TeachersDialog({ mode, defaultValues }: TeachersDialogProps) {
   const [open, setOpen] = useState(false);
+  const { addTeacher, updateTeacher } = useTeacherStore();
 
   const [form, setForm] = useState({
-    teacherName: "",
+    fullName: "",
     salary: "",
     percentage: "",
-    groups: [] as string[],
   });
 
   useEffect(() => {
     if (defaultValues) {
       setForm({
-        teacherName: defaultValues.teacherName || "",
+        fullName: defaultValues.fullName || "",
         salary: defaultValues.salary?.toString() || "",
         percentage: defaultValues.percentage?.toString() || "",
-        groups: defaultValues.groups || [],
       });
     } else {
-      setForm({
-        teacherName: "",
-        salary: "",
-        percentage: "",
-        groups: [],
-      });
+      setForm({ fullName: "", salary: "", percentage: "" });
     }
   }, [defaultValues, open]);
 
-  const handleSubmit = () => {
-    if (!form.teacherName || !form.salary || !form.percentage) return;
+  const handleSubmit = async () => {
+    if (!form.fullName || !form.salary || !form.percentage) return;
 
     const teacherData = {
-      teacherName: form.teacherName,
+      fullName: form.fullName,
       salary: parseFloat(form.salary),
       percentage: parseFloat(form.percentage),
-      groups: form.groups,
     };
 
-    onSubmit(teacherData);
+    if (mode === "add") {
+      await addTeacher(teacherData);
+    } else if (mode === "edit" && defaultValues?.id) {
+      await updateTeacher(defaultValues.id, teacherData);
+    }
+
     setOpen(false);
   };
 
@@ -96,10 +85,10 @@ export default function TeachersDialog({
 
         <div className="flex flex-col gap-3 py-2">
           <div>
-            <Label>Teacher Name</Label>
+            <Label>Full Name</Label>
             <Input
-              value={form.teacherName}
-              onChange={(e) => setForm({ ...form, teacherName: e.target.value })}
+              value={form.fullName}
+              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
               placeholder="e.g. Mr. Ali"
             />
           </div>
@@ -121,15 +110,6 @@ export default function TeachersDialog({
               value={form.percentage}
               onChange={(e) => setForm({ ...form, percentage: e.target.value })}
               placeholder="e.g. 40"
-            />
-          </div>
-
-          <div>
-            <Label>Groups</Label>
-            <Input
-              value={form.groups.join(", ")}
-              disabled
-              placeholder="Groups are assigned automatically"
             />
           </div>
         </div>

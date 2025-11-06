@@ -1,54 +1,65 @@
+import { useEffect } from "react"
 import { TrendingUp, Users, Wallet } from "lucide-react"
 import StatCard from "./StatCard"
 import ChartCard from "./chart"
+import { useFinanceStore } from "@/stores/revenuesStore"
 
-  const revenues = [
-    {
-      id: 1,
-      name: "Total Revenue",
-      numb: 125000,
-      icon: <TrendingUp className="w-10 h-10 text-green-600" />,
-    },
-    {
-      id: 2,
-      name: "Teachers Revenue",
-      numb: 42000,
-      icon: <Users className="w-10 h-10 text-blue-600" />,
-    },
-    {
-      id: 3,
-      name: "Net Income",
-      numb: 83000,
-      icon: <Wallet className="w-10 h-10 text-amber-600" />,
-    },
-  ]
-
-  const sampleData = [
+const sampleData = [
   { name: "Jan", value: 12000 },
   { name: "Feb", value: 21000 },
   { name: "Mar", value: 8000 },
   { name: "Apr", value: 27000 },
   { name: "May", value: 19000 },
   { name: "Jun", value: 24000 },
-];
+]
 
+export default function DirectorDashboard() {
+  const { total, net, getNet , getTotal } = useFinanceStore()
 
-export default function DirectorDashboard(){
+  useEffect(() => {
+    getTotal()
+    getNet()
+  }, [getTotal, getNet])
 
-    return(
-        <div className="flex flex-col gap-4">
-            <h2 className="text-2xl font-semibold">Dashboard</h2>
-            <div className="grid grid-cols-3 gap-2">
-                {revenues.map((revenue) => (
-                    <StatCard key={revenue.id} {...revenue} />
-                    ))}
-            </div>
-            <ChartCard
-          title="Net Income"
-          data={sampleData.map((d) => ({ ...d, value: Math.round(d.value * 0.6) }))}
-          stroke="#F59E0B"
-          height={280}
-        />
-        </div>
-    )
+  const teachersRevenue = total && net ? total - net : 0
+
+  const revenues = [
+    {
+      id: 1,
+      name: "Total Revenue",
+      numb: total,
+      icon: <TrendingUp className="w-10 h-10 text-green-600" />,
+    },
+    {
+      id: 2,
+      name: "Teachers Revenue",
+      numb: teachersRevenue,
+      icon: <Users className="w-10 h-10 text-blue-600" />,
+    },
+    {
+      id: 3,
+      name: "Net Income",
+      numb: net,
+      icon: <Wallet className="w-10 h-10 text-amber-600" />,
+    },
+  ]
+
+  return (
+    <div className="flex flex-col gap-4">
+      <h2 className="text-2xl font-semibold">Dashboard</h2>
+
+      <div className="grid grid-cols-3 gap-2">
+        {revenues.map((revenue) => (
+          <StatCard key={revenue.id} {...revenue} />
+        ))}
+      </div>
+
+      <ChartCard
+        title="Net Income"
+        data={sampleData.map((d) => ({ ...d, value: Math.round(d.value * 0.6) }))}
+        stroke="#F59E0B"
+        height={280}
+      />
+    </div>
+  )
 }

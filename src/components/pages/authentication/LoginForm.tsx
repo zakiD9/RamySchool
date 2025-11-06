@@ -1,15 +1,19 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowRightIcon } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useAuthStore } from "@/stores/authStore"
+import { useNavigate } from "react-router-dom"
 
 export default function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { loginUser, loading, token, role } = useAuthStore()
+  const navigate = useNavigate()
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
@@ -28,12 +32,22 @@ export default function LoginForm() {
       return
     }
 
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      alert("✅ Logged in successfully!")
-    }, 1200)
+    try {
+      await loginUser(email, password)
+    } catch (err) {
+      setError("Invalid credentials, please try again.")
+    }
   }
+
+  useEffect(() => {
+    if (token && role !== null) {
+      if (role === "Director" || role === "1") {
+        navigate("/director/dashboard")
+      } else if (role === "Secretary" || role === "0") {
+        navigate("/receptionist/section")
+      }
+    }
+  }, [token, role, navigate])
 
   return (
     <form
@@ -71,12 +85,13 @@ export default function LoginForm() {
           type="submit"
           size="lg"
           variant="default"
-          label="Login"
-          className="rounded-full"
+          className="rounded-full w-full"
           iconPosition="right"
           icon={<ArrowRightIcon />}
-          loading={loading}
-        />
+          disabled={loading}
+        >
+          {loading ? "Logging in..." : "Login"}
+        </Button>
       </div>
     </form>
   )
