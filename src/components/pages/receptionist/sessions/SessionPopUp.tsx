@@ -47,8 +47,8 @@ export default function SessionsDialog({ mode, defaultValues }: SessionsDialogPr
       setForm({
         type: defaultValues.type,
         dateSession: defaultValues.dateSession.split("T")[0],
-        price: defaultValues.price.toString(),
-        groupId: defaultValues.groupId.toString(),
+        price: defaultValues.price?.toString(),
+        groupId: defaultValues.groupId?.toString(),
       });
     } else {
       setForm({

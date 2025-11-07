@@ -26,16 +26,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import EditButton from "@/components/ui/editButton";
 import { useGroupStore } from "@/stores/groupStore";
-
-interface Teacher {
-  id: number;
-  name: string;
-}
-
-interface Student {
-  id: number;
-  name: string;
-}
+import { useTeacherStore } from "@/stores/teachersStore";
 
 interface GroupDialogProps {
   mode: "add" | "edit";
@@ -46,48 +37,37 @@ interface GroupDialogProps {
     teacherName: string;
     students?: { id: number; name: string }[];
   };
-  allTeachers?: Teacher[];
-  allStudents?: Student[];
 }
 
 export default function GroupDialog({
   mode,
   defaultValues,
-  allTeachers = [],
-  allStudents = [],
 }: GroupDialogProps) {
   const [open, setOpen] = useState(false);
   const [teacherPickerOpen, setTeacherPickerOpen] = useState(false);
-  const [studentPickerOpen, setStudentPickerOpen] = useState(false);
 
   const { createGroup, editGroup } = useGroupStore();
+  const { teachers, fetchTeachers } = useTeacherStore();
 
   const [form, setForm] = useState({
     groupName: "",
     teacherId: 0,
-    students: [] as number[],
   });
+
+  useEffect(() => {
+    fetchTeachers();
+  }, [fetchTeachers]);
 
   useEffect(() => {
     if (defaultValues) {
       setForm({
         groupName: defaultValues.groupName || "",
         teacherId: defaultValues.teacherId || 0,
-        students: defaultValues.students?.map((s) => s.id) || [],
       });
     } else {
-      setForm({ groupName: "", teacherId: 0, students: [] });
+      setForm({ groupName: "", teacherId: 0 });
     }
   }, [defaultValues, open]);
-
-  const toggleStudent = (id: number) => {
-    setForm((prev) => ({
-      ...prev,
-      students: prev.students.includes(id)
-        ? prev.students.filter((s) => s !== id)
-        : [...prev.students, id],
-    }));
-  };
 
   const handleSubmit = async () => {
     if (!form.groupName || !form.teacherId) return;
@@ -102,7 +82,7 @@ export default function GroupDialog({
   };
 
   const selectedTeacherName =
-    allTeachers.find((t) => t.id === form.teacherId)?.name || "Select teacher";
+    teachers.find((t) => t.id === form.teacherId)?.fullName || "Select teacher";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -147,7 +127,7 @@ export default function GroupDialog({
                   <CommandInput placeholder="Search teacher..." />
                   <CommandEmpty>No teachers found.</CommandEmpty>
                   <CommandGroup>
-                    {allTeachers.map((teacher) => (
+                    {teachers.map((teacher) => (
                       <CommandItem
                         key={teacher.id}
                         onSelect={() =>
@@ -162,7 +142,7 @@ export default function GroupDialog({
                               : "opacity-0"
                           )}
                         />
-                        {teacher.name}
+                        {teacher.fullName}
                       </CommandItem>
                     ))}
                   </CommandGroup>
@@ -171,62 +151,22 @@ export default function GroupDialog({
             </Popover>
           </div>
 
-          {mode === "add" && (
+          {/* Show students only in edit mode */}
+          {mode === "edit" && defaultValues?.students?.length ? (
             <div className="flex flex-col gap-2">
               <Label>Students</Label>
-              <Popover
-                open={studentPickerOpen}
-                onOpenChange={setStudentPickerOpen}
-              >
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="justify-between">
-                    Select Students
-                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[300px] p-0">
-                  <Command>
-                    <CommandInput placeholder="Search student..." />
-                    <CommandEmpty>No students found.</CommandEmpty>
-                    <CommandGroup>
-                      {allStudents.map((student) => (
-                        <CommandItem
-                          key={student.id}
-                          onSelect={() => toggleStudent(student.id)}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              form.students.includes(student.id)
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                          {student.name}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-
-              {form.students.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {form.students.map((id) => {
-                    const student = allStudents.find((s) => s.id === id);
-                    return (
-                      <span
-                        key={id}
-                        className="px-2 py-1 bg-gray-100 text-sm rounded-md border"
-                      >
-                        {student?.name}
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
+              <div className="flex flex-wrap gap-1 mt-1">
+                {defaultValues.students.map((s) => (
+                  <span
+                    key={s.id}
+                    className="px-2 py-1 bg-gray-100 text-sm rounded-md border"
+                  >
+                    {s.name}
+                  </span>
+                ))}
+              </div>
             </div>
-          )}
+          ) : null}
         </div>
 
         <DialogFooter>

@@ -58,6 +58,7 @@ export default function TeachersDialog({ mode, defaultValues }: TeachersDialogPr
     if (mode === "add") {
       await addTeacher(teacherData);
     } else if (mode === "edit" && defaultValues?.id) {
+      console.log("updated one:",teacherData);
       await updateTeacher(defaultValues.id, teacherData);
     }
 

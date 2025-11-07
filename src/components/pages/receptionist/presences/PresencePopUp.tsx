@@ -6,24 +6,32 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { PlusIcon, Check, ChevronDown } from "lucide-react";
 import EditButton from "@/components/ui/editButton";
 import { useEffect, useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { usePresenceStore } from "@/stores/presencesStore";
+import { cn } from "@/lib/utils";
 import api from "@/lib/api";
+import { usePresenceStore } from "@/stores/presencesStore";
+import type { SessionResponse } from "@/types/SessionResponse";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 
 interface Student {
   id: number;
   name: string;
-}
-
-interface Session {
-  id: number;
-  date: string;
 }
 
 interface PresenceDialogProps {
@@ -39,8 +47,12 @@ interface PresenceDialogProps {
 
 export default function PresenceDialog({ mode, defaultValues }: PresenceDialogProps) {
   const [open, setOpen] = useState(false);
+  const [studentPickerOpen, setStudentPickerOpen] = useState(false);
+  const [sessionPickerOpen, setSessionPickerOpen] = useState(false);
+
   const [students, setStudents] = useState<Student[]>([]);
-  const [sessions, setSessions] = useState<Session[]>([]);
+  const [sessions, setSessions] = useState<SessionResponse[]>([]);
+
   const { addPresence, updatePresence } = usePresenceStore();
 
   const [form, setForm] = useState({
@@ -96,6 +108,16 @@ export default function PresenceDialog({ mode, defaultValues }: PresenceDialogPr
     }
   };
 
+  const selectedStudentName =
+    students.find((s) => s.id === form.studentId)?.name || "Select student";
+
+  const selectedSessionLabel =
+    sessions.find((s) => s.id === form.sessionId)
+      ? `${sessions.find((s) => s.id === form.sessionId)?.dateSession} — ${
+          sessions.find((s) => s.id === form.sessionId)?.groupName
+        } (${sessions.find((s) => s.id === form.sessionId)?.teacherName})`
+      : "Select session";
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -108,7 +130,7 @@ export default function PresenceDialog({ mode, defaultValues }: PresenceDialogPr
         )}
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
             {mode === "add" ? "Add New Presence" : "Edit Presence"}
@@ -118,52 +140,94 @@ export default function PresenceDialog({ mode, defaultValues }: PresenceDialogPr
         <div className="flex flex-col gap-4 py-2">
           {mode === "add" ? (
             <>
-              
-              <div className="flex flex-col gap-1">
+              {/* Student Picker */}
+              <div>
                 <Label>Student</Label>
-                <Select
-                  value={form.studentId ? String(form.studentId) : ""}
-                  onValueChange={(value) =>
-                    setForm({ ...form, studentId: Number(value) })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a student" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {students.map((student) => (
-                      <SelectItem key={student.id} value={String(student.id)}>
-                        {student.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={studentPickerOpen} onOpenChange={setStudentPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="justify-between w-full"
+                    >
+                      {selectedStudentName}
+                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Search student..." />
+                      <CommandEmpty>No students found.</CommandEmpty>
+                      <CommandGroup>
+                        {students.map((student) => (
+                          <CommandItem
+                            key={student.id}
+                            onSelect={() =>
+                              setForm({ ...form, studentId: student.id })
+                            }
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                form.studentId === student.id
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {student.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
-              
-              <div className="flex flex-col gap-1">
+              {/* Session Picker */}
+              <div>
                 <Label>Session</Label>
-                <Select
-                  value={form.sessionId ? String(form.sessionId) : ""}
-                  onValueChange={(value) =>
-                    setForm({ ...form, sessionId: Number(value) })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a session" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sessions.map((session) => (
-                      <SelectItem key={session.id} value={String(session.id)}>
-                        {session.date}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={sessionPickerOpen} onOpenChange={setSessionPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="justify-between w-full"
+                    >
+                      {selectedSessionLabel}
+                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[350px] p-0">
+                    <Command>
+                      <CommandInput placeholder="Search session (group, teacher, date)..." />
+                      <CommandEmpty>No sessions found.</CommandEmpty>
+                      <CommandGroup>
+                        {sessions.map((session) => (
+                          <CommandItem
+                            key={session.id}
+                            onSelect={() =>
+                              setForm({ ...form, sessionId: session.id })
+                            }
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                form.sessionId === session.id
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {`${session.dateSession} — ${session.groupName} (${session.teacherName})`}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
-              
-              <div className="flex items-center space-x-2">
+              {/* Presence Checkbox */}
+              <div className="flex items-center space-x-2 mt-2">
                 <Checkbox
                   id="isPresent"
                   checked={form.isPresent}
@@ -175,7 +239,7 @@ export default function PresenceDialog({ mode, defaultValues }: PresenceDialogPr
               </div>
             </>
           ) : (
-            
+            // Edit mode: only toggle presence
             <div className="flex items-center space-x-2 mt-2">
               <Checkbox
                 id="isPresent"
