@@ -6,6 +6,8 @@ import {
   Layers3,
   CalendarCheck,
   ArrowRight,
+  Menu,
+  X,
 } from "lucide-react"
 import { FC, useState } from "react"
 import { NavLink, useNavigate } from "react-router-dom"
@@ -36,61 +38,85 @@ const receptionistMenu: MenuItem[] = [
 ]
 
 export default function Sidebar({ role }: { role: Role }) {
-  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
-  const logout = useAuthStore((state) => state.logout);
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const logout = useAuthStore((state) => state.logout)
   const menuItems = role === "director" ? directorMenu : receptionistMenu
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleLogout = () => {
-    logout();
-    navigate("/login"); 
-  };
-
-
-  return (
-    <div className="w-1/5 h-fit bg-white border py-2 shadow-sm">
-      <ul className="flex flex-col">
-        {menuItems.map((item, idx) => {
-  const Icon = item.icon;
-
-  if (item.label === "Log Out") {
-    return (
-      <li key={idx}>
-        <button
-          onClick={() => setIsLogoutOpen(true)}
-          className="flex items-center gap-3 px-4 py-3 w-full text-left hover:bg-gray-100 transition-colors text-gray-700"
-        >
-          <Icon className="w-5 h-5" />
-          <span className="text-sm">{item.label}</span>
-        </button>
-      </li>
-    );
+    logout()
+    navigate("/login")
   }
 
   return (
-    <NavLink
-      key={idx}
-      to={item.to!}
-      className={({ isActive }) =>
-        `flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
-          isActive
-            ? "bg-gray-200 font-medium text-gray-900"
-            : "hover:bg-gray-100 text-gray-700"
-        }`
-      }
-    >
-      <Icon className="w-5 h-5" />
-      <span className="text-sm">{item.label}</span>
-    </NavLink>
-  );
-})}
+    <>
+      {/* Mobile hamburger button */}
+      <button
+        className="md:hidden p-3 fixed top-4 left-4 z-50 bg-white rounded shadow"
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+      >
+        {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+      </button>
 
-      </ul>
-       {isLogoutOpen && <LogoutDialog
-        isOpen={isLogoutOpen}
-        onClose={() => setIsLogoutOpen(false)}
-        onLogout={handleLogout}
-      />}
-    </div>
+      {/* Sidebar overlay for mobile */}
+      <div
+        className={`fixed inset-0 bg-black/30 z-40 transition-opacity md:hidden ${
+          isMobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsMobileOpen(false)}
+      ></div>
+
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full bg-white shadow-md z-50 w-64 transform transition-transform
+        md:relative md:translate-x-0
+        ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <ul className="flex flex-col mt-10 md:mt-0">
+          {menuItems.map((item, idx) => {
+            const Icon = item.icon
+            if (item.label === "Log Out") {
+              return (
+                <li key={idx}>
+                  <button
+                    onClick={() => setIsLogoutOpen(true)}
+                    className="flex items-center gap-3 px-4 py-3 w-full text-left hover:bg-gray-100 transition-colors text-gray-700"
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="text-sm">{item.label}</span>
+                  </button>
+                </li>
+              )
+            }
+            return (
+              <NavLink
+                key={idx}
+                to={item.to!}
+                onClick={() => setIsMobileOpen(false)} // close menu on mobile after click
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
+                    isActive
+                      ? "bg-gray-200 font-medium text-gray-900"
+                      : "hover:bg-gray-100 text-gray-700"
+                  }`
+                }
+              >
+                <Icon className="w-5 h-5" />
+                <span className="text-sm">{item.label}</span>
+              </NavLink>
+            )
+          })}
+        </ul>
+
+        {isLogoutOpen && (
+          <LogoutDialog
+            isOpen={isLogoutOpen}
+            onClose={() => setIsLogoutOpen(false)}
+            onLogout={handleLogout}
+          />
+        )}
+      </div>
+    </>
   )
 }

@@ -51,48 +51,48 @@ export default function LoginForm() {
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className="shadow-lg w-1/3 rounded-3xl gap-3 py-5 px-10 flex flex-col"
+  onSubmit={handleSubmit}
+  className="shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl mx-auto rounded-3xl gap-3 py-5 px-6 sm:px-10 flex flex-col"
+>
+  <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-center">Sign In</h1>
+
+  <div className="flex flex-col mb-3">
+    <label className="text-sm text-gray-600 mb-1">Email</label>
+    <Input
+      type="email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      placeholder="example@email.com"
+    />
+  </div>
+
+  <div className="flex flex-col mb-4">
+    <label className="text-sm text-gray-600 mb-1">Password</label>
+    <Input
+      type="password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      placeholder="Enter your password"
+    />
+  </div>
+
+  {error && (
+    <div className="text-sm text-red-600 text-center mb-2">{error}</div>
+  )}
+
+  <div className="flex flex-col items-center gap-4 mt-2">
+    <Button
+      type="submit"
+      size="lg"
+      variant="default"
+      className="rounded-full w-full sm:w-auto px-10"
+      iconPosition="right"
+      icon={<ArrowRightIcon />}
+      disabled={loading}
     >
-      <h1 className="text-4xl font-extrabold mb-2">Sign In</h1>
-
-      <div className="flex flex-col mb-3">
-        <label className="text-sm text-gray-600 mb-1">Email</label>
-        <Input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="example@email.com"
-        />
-      </div>
-
-      <div className="flex flex-col mb-4">
-        <label className="text-sm text-gray-600 mb-1">Password</label>
-        <Input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter your password"
-        />
-      </div>
-
-      {error && (
-        <div className="text-sm text-red-600 text-center mb-2">{error}</div>
-      )}
-
-      <div className="flex flex-col items-center gap-4 mt-2">
-        <Button
-          type="submit"
-          size="lg"
-          variant="default"
-          className="rounded-full w-full"
-          iconPosition="right"
-          icon={<ArrowRightIcon />}
-          disabled={loading}
-        >
-          {loading ? "Logging in..." : "Login"}
-        </Button>
-      </div>
-    </form>
+      {loading ? "Logging in..." : "Login"}
+    </Button>
+  </div>
+</form>
   )
 }
