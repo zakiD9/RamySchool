@@ -10,18 +10,11 @@ import {
 import DeleteButton from "@/components/ui/deleteButton";
 import SessionsDialog from "./SessionPopUp";
 import { useSessionStore } from "@/stores/sessionsStore";
+import { SessionResponse } from "@/types/SessionResponse";
 
-export interface Session {
-  id: number;
-  type: number;
-  dateSession: string;
-  price: number;
-  groupName: string;
-  teacherName: string;
-}
 
 interface SessionsTableProps {
-  data: Session[];
+  data: SessionResponse[];
 }
 
 export default function SessionsTable({ data }: SessionsTableProps) {

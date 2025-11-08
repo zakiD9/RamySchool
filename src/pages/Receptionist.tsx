@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom";
 export default function Receptionist() {
   return (
     <div className="w-full h-screen flex flex-col">
-      <TopBar username="Zaki dj." />
+      <TopBar />
 
       <div className="flex flex-1 pt-40">
         <Sidebar role="receptionist" />

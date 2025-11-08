@@ -140,7 +140,6 @@ export default function PresenceDialog({ mode, defaultValues }: PresenceDialogPr
         <div className="flex flex-col gap-4 py-2">
           {mode === "add" ? (
             <>
-              {/* Student Picker */}
               <div>
                 <Label>Student</Label>
                 <Popover open={studentPickerOpen} onOpenChange={setStudentPickerOpen}>
@@ -183,7 +182,6 @@ export default function PresenceDialog({ mode, defaultValues }: PresenceDialogPr
                 </Popover>
               </div>
 
-              {/* Session Picker */}
               <div>
                 <Label>Session</Label>
                 <Popover open={sessionPickerOpen} onOpenChange={setSessionPickerOpen}>

@@ -76,7 +76,6 @@ export default function GroupsTable({ data }: GroupsTableProps) {
                     teacherName: group.teacherName,
                     students: group.students,
                   }}
-                  onSubmit={(updated) => console.log("Updated:", updated)}
                 />
                 <DeleteButton onClick={() => handleDelete(group.id)} />
               </TableCell>

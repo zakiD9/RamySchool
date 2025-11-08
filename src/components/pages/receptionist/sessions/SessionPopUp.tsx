@@ -22,13 +22,13 @@ interface SessionsDialogProps {
     type: number;
     dateSession: string;
     price: number;
-    groupId: number;
+    groupId?: number;
   };
 }
 
 export default function SessionsDialog({ mode, defaultValues }: SessionsDialogProps) {
   const [open, setOpen] = useState(false);
-  const { groups, fetchGroups } = useGroupStore();
+  const { groups } = useGroupStore();
   const { addSession, updateSession } = useSessionStore();
 
   const [form, setForm] = useState({
@@ -38,46 +38,46 @@ export default function SessionsDialog({ mode, defaultValues }: SessionsDialogPr
     groupId: "",
   });
 
-  useEffect(() => {
-    if (open && groups.length === 0) fetchGroups();
-  }, [open, fetchGroups, groups.length]);
+ useEffect(() => {
+  if (defaultValues) {
+    setForm({
+      type: defaultValues.type ?? 0,
+      dateSession: defaultValues.dateSession
+        ? defaultValues.dateSession.split("T")[0]
+        : "",
+      price: defaultValues.price?.toString() ?? "",
+      groupId: defaultValues.groupId ? defaultValues.groupId.toString() : "",
+    });
+  } else {
+    setForm({
+      type: 0,
+      dateSession: "",
+      price: "",
+      groupId: "",
+    });
+  }
+}, [defaultValues, open]);
 
-  useEffect(() => {
-    if (defaultValues) {
-      setForm({
-        type: defaultValues.type,
-        dateSession: defaultValues.dateSession.split("T")[0],
-        price: defaultValues.price?.toString(),
-        groupId: defaultValues.groupId?.toString(),
-      });
-    } else {
-      setForm({
-        type: 0,
-        dateSession: "",
-        price: "",
-        groupId: "",
-      });
-    }
-  }, [defaultValues, open]);
+const handleSubmit = async () => {
+  if (!form.dateSession || !form.groupId) return;
+  if (form.type === 0 && !form.price) return;
 
-  const handleSubmit = async () => {
-    if (!form.dateSession || !form.price || !form.groupId) return;
-
-    const sessionData = {
-      type: form.type,
-      dateSession: new Date(form.dateSession).toISOString(),
-      price: parseFloat(form.price),
-      groupId: parseInt(form.groupId),
-    };
-
-    if (mode === "add") {
-      await addSession(sessionData);
-    } else if (defaultValues?.id) {
-      await updateSession(defaultValues.id, sessionData);
-    }
-
-    setOpen(false);
+  const sessionData = {
+    type: form.type,
+    dateSession: new Date(form.dateSession).toISOString(),
+    price: form.type === 1 ? 0 : parseFloat(form.price),
+    groupId: parseInt(form.groupId),
   };
+
+  if (mode === "add") {
+    await addSession(sessionData);
+  } else if (defaultValues?.id) {
+    await updateSession(defaultValues.id, sessionData);
+  }
+
+  setOpen(false);
+};
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

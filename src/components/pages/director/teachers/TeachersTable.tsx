@@ -7,7 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import ViewButton from "@/components/ui/viewButton"
 import TeacherViewDialog from "./TeacherPopUp"
 
 export interface Presence {

@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom";
 export default function Director() {
   return (
     <div className="w-full h-screen flex flex-col">
-      <TopBar username="Zaki dj." />
+      <TopBar />
 
       <div className="flex flex-1 gap-2 pt-40">
         <Sidebar role="director" />
