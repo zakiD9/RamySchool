@@ -53,7 +53,7 @@ export default function Sidebar({ role }: { role: Role }) {
     <>
       {/* Mobile hamburger button */}
       <button
-        className="md:hidden p-3 fixed top-4 left-4 z-50 bg-white rounded shadow"
+        className="md:hidden p-3 fixed top-2 left-4 z-50 bg-white rounded shadow"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
       >
         {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

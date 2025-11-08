@@ -23,7 +23,6 @@ export default function TeacherViewDialog({ teacher }: TeacherViewDialogProps) {
   const [open, setOpen] = useState(false);
   const { getTeacherRevenue, teacherRevenue, loading } = useFinanceStore();
 
-  // ✅ Fetch teacher revenue when the dialog opens
   useEffect(() => {
     if (open) {
       getTeacherRevenue(teacher.id);

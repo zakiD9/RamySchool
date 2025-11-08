@@ -1,18 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
-import { Filter } from "@/components/ui/filter";
 import { SearchInput } from "@/components/ui/search";
 import TeachersTable from "./TeachersTable";
 import { useTeacherStore } from "@/stores/teachersStore";
 
-const teacherRevenueFilters = [
-  { label: "All", value: "all" },
-  { label: "This Month", value: "month" },
-  { label: "This Week", value: "week" },
-  { label: "Today", value: "today" },
-];
 
 export default function DirectorTeachersSection() {
-  const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 
   const { teachers, fetchTeachers, loading, error } = useTeacherStore();
@@ -44,12 +36,6 @@ export default function DirectorTeachersSection() {
           value={search}
           onChange={setSearch}
           onClear={() => setSearch("")}
-        />
-        <Filter
-          label="Period"
-          options={teacherRevenueFilters}
-          value={filter}
-          onChange={setFilter}
         />
       </div>
 

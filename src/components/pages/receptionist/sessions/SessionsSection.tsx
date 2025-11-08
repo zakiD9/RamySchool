@@ -1,18 +1,10 @@
-import { useEffect, useState } from "react";
-import { Filter } from "@/components/ui/filter";
+import { useEffect, } from "react";
 import SessionsTable from "./SessionsTable";
 import SessionsDialog from "./SessionPopUp";
 import { useSessionStore } from "@/stores/sessionsStore";
 
-const teacherRevenueFilters = [
-  { label: "All", value: "all" },
-  { label: "This Month", value: "month" },
-  { label: "This Week", value: "week" },
-  { label: "Today", value: "today" },
-];
 
 export default function SessionsSection() {
-  const [filter, setFilter] = useState("all");
   const { sessions, fetchSessions, loading, error } = useSessionStore();
 
   useEffect(() => {
@@ -25,14 +17,6 @@ export default function SessionsSection() {
 
       <div className="flex justify-between items-center">
         <SessionsDialog mode="add" />
-        <div className="gap-2 flex items-center">
-          <Filter
-            label="Period"
-            options={teacherRevenueFilters}
-            value={filter}
-            onChange={setFilter}
-          />
-        </div>
       </div>
 
       {loading && <p className="text-sm text-gray-500">Loading sessions...</p>}

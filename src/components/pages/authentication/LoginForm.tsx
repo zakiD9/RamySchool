@@ -10,7 +10,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
 
-  const { loginUser, loading, token, role } = useAuthStore()
+  const { loginUser, loading, token, role, error: authError } = useAuthStore()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,9 +76,12 @@ export default function LoginForm() {
     />
   </div>
 
-  {error && (
-    <div className="text-sm text-red-600 text-center mb-2">{error}</div>
-  )}
+  {(error || authError) && (
+  <div className="text-sm text-red-600 text-center mb-2">
+    {error || authError}
+  </div>
+)}
+
 
   <div className="flex flex-col items-center gap-4 mt-2">
     <Button
