@@ -1,11 +1,11 @@
 import { Filter } from "@/components/ui/filter";
 import { SearchInput } from "@/components/ui/search";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import StudentsTable from "./StudentTable";
 import StudentsDialog from "./StudentPopUp";
 import { useStudentsStore } from "@/stores/studentsStore";
 
-const teacherRevenueFilters = [
+const studentFilters = [
   { label: "All", value: "all" },
   { label: "This Month", value: "month" },
   { label: "This Week", value: "week" },
@@ -14,11 +14,22 @@ const teacherRevenueFilters = [
 
 export default function StudentSection() {
   const [filter, setFilter] = useState("all");
-  const { students, fetchStudents, loading } = useStudentsStore();
+  const [search, setSearch] = useState("");
+  const { students, fetchStudents, loading, error } = useStudentsStore();
 
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents]);
+
+  const filteredStudents = useMemo(() => {
+    if (!students) return [];
+    return students.filter((student) =>
+      student.name?.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [students, search]);
+
+  if (loading) return <p className="text-center text-muted-foreground">Loading students...</p>;
+  if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -28,21 +39,22 @@ export default function StudentSection() {
         <StudentsDialog mode="add" />
 
         <div className="gap-2 flex items-center">
-          <SearchInput placeholder="type...." />
+          <SearchInput
+            placeholder="Search students..."
+            value={search}
+            onChange={setSearch}
+            onClear={() => setSearch("")}
+          />
           <Filter
             label="Period"
-            options={teacherRevenueFilters}
+            options={studentFilters}
             value={filter}
             onChange={setFilter}
           />
         </div>
       </div>
 
-      {loading ? (
-        <p className="text-center text-muted-foreground">Loading students...</p>
-      ) : (
-        <StudentsTable data={students} />
-      )}
+      <StudentsTable data={filteredStudents} />
     </div>
   );
 }

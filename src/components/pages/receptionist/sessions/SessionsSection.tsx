@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Filter } from "@/components/ui/filter";
-import { SearchInput } from "@/components/ui/search";
 import SessionsTable from "./SessionsTable";
 import SessionsDialog from "./SessionPopUp";
 import { useSessionStore } from "@/stores/sessionsStore";
@@ -27,7 +26,6 @@ export default function SessionsSection() {
       <div className="flex justify-between items-center">
         <SessionsDialog mode="add" />
         <div className="gap-2 flex items-center">
-          <SearchInput placeholder="type..." />
           <Filter
             label="Period"
             options={teacherRevenueFilters}

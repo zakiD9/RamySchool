@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Filter } from "@/components/ui/filter";
-import { SearchInput } from "@/components/ui/search";
 import PresenceDialog from "./PresencePopUp";
 import PresencesTable from "./PresencesTable";
 import { usePresenceStore } from "@/stores/presencesStore";
@@ -29,7 +28,6 @@ export default function PresencesSection() {
         <PresenceDialog mode="add" />
 
         <div className="gap-2 flex items-center">
-          <SearchInput placeholder="Search..." />
           <Filter
             label="Period"
             options={teacherRevenueFilters}

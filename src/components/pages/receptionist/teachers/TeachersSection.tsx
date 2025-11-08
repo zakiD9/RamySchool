@@ -1,6 +1,6 @@
 import { Filter } from "@/components/ui/filter";
 import { SearchInput } from "@/components/ui/search";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import TeachersTable from "./TeachersTable";
 import { useTeacherStore } from "@/stores/teachersStore";
 import TeachersDialog from "./TeacherPopUp";
@@ -14,12 +14,23 @@ const teacherRevenueFilters = [
 
 export default function ReceptionistTeachersSection() {
   const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   const { teachers, fetchTeachers, loading, error } = useTeacherStore();
 
   useEffect(() => {
     fetchTeachers();
   }, [fetchTeachers]);
+
+  const filteredTeachers = useMemo(() => {
+    if (!teachers) return [];
+    return teachers.filter((teacher) =>
+      teacher.fullName?.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [teachers, search]);
+
+  if (loading) return <p>Loading teachers...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -29,7 +40,12 @@ export default function ReceptionistTeachersSection() {
         <TeachersDialog mode="add" />
 
         <div className="gap-2 flex items-center">
-          <SearchInput placeholder="type...." />
+          <SearchInput
+            placeholder="Search teachers..."
+            value={search}
+            onChange={setSearch}
+            onClear={() => setSearch("")}
+          />
           <Filter
             label="Period"
             options={teacherRevenueFilters}
@@ -39,13 +55,7 @@ export default function ReceptionistTeachersSection() {
         </div>
       </div>
 
-      {loading ? (
-        <p>Loading teachers...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : (
-        <TeachersTable data={teachers} />
-      )}
+      <TeachersTable data={filteredTeachers} />
     </div>
   );
 }
