@@ -16,7 +16,6 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
 
-      {/* Director Routes */}
       <Route
         path="/director"
         element={
@@ -29,7 +28,6 @@ function App() {
         <Route path="teachers" element={<DirectorTeachersSection />} />
       </Route>
 
-      {/* Receptionist Routes */}
       <Route
         path="/receptionist"
         element={
