@@ -4,7 +4,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isLoggedIn = localStorage.getItem("token");
 
   if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

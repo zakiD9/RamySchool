@@ -14,7 +14,7 @@ import GroupsSection from "./components/pages/receptionist/groups/GroupsSection"
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Login />} />
 
       <Route
         path="/director"

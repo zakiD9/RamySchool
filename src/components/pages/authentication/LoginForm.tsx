@@ -44,7 +44,7 @@ export default function LoginForm() {
       if (role === "Director" || role === "1") {
         navigate("/director/dashboard")
       } else if (role === "Secretary" || role === "0") {
-        navigate("/receptionist/section")
+        navigate("/receptionist/teachers")
       }
     }
   }, [token, role, navigate])
