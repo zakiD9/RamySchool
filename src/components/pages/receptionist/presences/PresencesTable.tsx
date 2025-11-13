@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -11,55 +11,97 @@ import DeleteButton from "@/components/ui/deleteButton";
 import { Status } from "@/components/ui/status";
 import PresenceDialog from "./PresencePopUp";
 import { usePresenceStore } from "@/stores/presencesStore";
-
-export interface Presence {
-  id: number;
-  studentName: string;
-  groupName: string;
-  sessionDate: string;
-  isPresent: boolean;
-}
+import { Checkbox } from "@/components/ui/checkbox";
+import { StudentResponse } from "@/services/studentsService";
 
 interface PresencesTableProps {
-  data: Presence[];
+  data: StudentResponse[];
 }
 
 export default function PresencesTable({ data }: PresencesTableProps) {
-  const { removePresence } = usePresenceStore();
+  
+  const { addPresence,removePresence } = usePresenceStore();
+  const [selectedStudent, setSelectedStudent] = useState<StudentResponse | null>(null);
+  const [openDialog, setOpenDialog] = useState(false);
+
   const handleDelete = async (id: number) => {
     await removePresence(id);
   };
 
+  const handleAddPresence = (student: StudentResponse) => {
+  setSelectedStudent(student);
+  setOpenDialog(true);
+};
+
+  const handleCheckboxClick = (student: StudentResponse) => {
+    setSelectedStudent(student);
+    setOpenDialog(true);
+  };
+
   return (
-    <div className="bg-white rounded-xl border shadow-sm p-4">
+    <div className="bg-white rounded-xl border shadow-sm p-4 overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[80px]">Session ID</TableHead>
-            <TableHead>Student Name</TableHead>
-            <TableHead>Group Name</TableHead>
-            <TableHead>Session Date</TableHead>
-            <TableHead className="text-center">Presence</TableHead>
+            <TableHead>Student</TableHead>
+            <TableHead>Group</TableHead>
+            <TableHead className="text-center">Presences</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {data.map((presence) => (
-            <TableRow key={presence.id + presence.studentName}>
-              <TableCell>{presence.id}</TableCell>
-              <TableCell className="font-medium">{presence.studentName}</TableCell>
-              <TableCell>{presence.groupName}</TableCell>
-              <TableCell>{presence.sessionDate}</TableCell>
-              <TableCell className="text-center">
-                <Status
-                  value={presence.isPresent ? "present" : "absent"}
-                  label={presence.isPresent ? "Present" : "Absent"}
-                />
+          {data.map((student) => (
+            <TableRow key={student.id}>
+              <TableCell className="font-medium">{student.name}</TableCell>
+              <TableCell>{student.groupName}</TableCell>
+
+              {/* Presences slots */}
+              <TableCell className="flex items-center justify-center gap-1">
+                {[0, 1, 2, 3].map((index) => {
+                  const presence = student.presences[index];
+                  if (presence) {
+                    return (
+                      <Status
+                        key={index}
+                        value={presence.isPresent ? "present" : "absent"}
+                        label={presence.isPresent ? "Present" : "Absent"}
+                      />
+                    );
+                  } else {
+                    return (
+                      <Checkbox
+                        key={index}
+                        onCheckedChange={() => handleCheckboxClick(student)}
+                      />
+                    );
+                  }
+                })}
               </TableCell>
-              <TableCell className="flex gap-1 justify-end">
-                <PresenceDialog mode="edit" defaultValues={presence}  />
-                <DeleteButton onConfirm={()=>{handleDelete(presence.id)}}/>
+
+              <TableCell className="flex justify-end gap-1">
+                {selectedStudent && (
+  <PresenceDialog
+    open={openDialog}
+    onOpenChange={setOpenDialog}
+    mode="add"
+    defaultValues={{
+      studentId: selectedStudent.id,
+      studentName: selectedStudent.name,
+    }}
+    onConfirm={async (formData) => {
+      // call the addPresence function from the store
+      try {
+        await addPresence(formData); // this should send POST request
+        setOpenDialog(false); // close dialog after success
+      } catch (err) {
+        console.error("Failed to add presence", err);
+      }
+    }}
+  />
+)}
+
+                <DeleteButton onConfirm={() => handleDelete(student.id)} />
               </TableCell>
             </TableRow>
           ))}
