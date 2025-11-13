@@ -53,27 +53,26 @@ export default function StudentsTable({ data }: StudentsTableProps) {
               <TableCell>{student.groupName}</TableCell>
               <TableCell>{student.teacherName}</TableCell>
 
-              {/* ✅ Fix presences */}
               <TableCell className="text-right">
                 <TooltipProvider>
                   <div className="flex justify-end gap-1">
-                    {student.presences
-                      ?.slice(-5)
-                      .map((presence, i) => (
-                        <Tooltip key={i}>
-                          <TooltipTrigger asChild>
-                            <Status
-                              value={presence.isPresent ? "success" : "error"}
-                              size="sm"
-                              label=""
-                              className="cursor-default"
-                            />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {presence.isPresent ? "Present" : "Absent"}
-                          </TooltipContent>
-                        </Tooltip>
-                      ))}
+{student.presences
+  ?.slice(-5)
+  .map((presence, i) => (
+    <Tooltip key={i}>
+      <TooltipTrigger asChild>
+        <Status
+          value={presence.isPresent ? "present" : "absent"}
+          size="sm"
+          className="cursor-default"
+        />
+      </TooltipTrigger>
+      <TooltipContent>
+        {presence.isPresent ? "Present" : "Absent"}
+      </TooltipContent>
+    </Tooltip>
+))}
+
                   </div>
                 </TooltipProvider>
               </TableCell>

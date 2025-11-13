@@ -1,19 +1,19 @@
-import { Filter } from "@/components/ui/filter";
+// import { Filter } from "@/components/ui/filter";
 import { SearchInput } from "@/components/ui/search";
 import { useEffect, useState, useMemo } from "react";
 import StudentsTable from "./StudentTable";
 import StudentsDialog from "./StudentPopUp";
 import { useStudentsStore } from "@/stores/studentsStore";
 
-const studentFilters = [
-  { label: "All", value: "all" },
-  { label: "This Month", value: "month" },
-  { label: "This Week", value: "week" },
-  { label: "Today", value: "today" },
-];
+// const studentFilters = [
+//   { label: "All", value: "all" },
+//   { label: "This Month", value: "month" },
+//   { label: "This Week", value: "week" },
+//   { label: "Today", value: "today" },
+// ];
 
 export default function StudentSection() {
-  const [filter, setFilter] = useState("all");
+  // const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const { students, fetchStudents, loading, error } = useStudentsStore();
 
@@ -45,12 +45,12 @@ export default function StudentSection() {
             onChange={setSearch}
             onClear={() => setSearch("")}
           />
-          <Filter
+          {/* <Filter
             label="Period"
             options={studentFilters}
             value={filter}
             onChange={setFilter}
-          />
+          /> */}
         </div>
       </div>
 

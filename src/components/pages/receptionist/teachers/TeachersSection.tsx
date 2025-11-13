@@ -1,19 +1,19 @@
-import { Filter } from "@/components/ui/filter";
+// import { Filter } from "@/components/ui/filter";
 import { SearchInput } from "@/components/ui/search";
 import { useEffect, useState, useMemo } from "react";
 import TeachersTable from "./TeachersTable";
 import { useTeacherStore } from "@/stores/teachersStore";
 import TeachersDialog from "./TeacherPopUp";
 
-const teacherRevenueFilters = [
-  { label: "All", value: "all" },
-  { label: "This Month", value: "month" },
-  { label: "This Week", value: "week" },
-  { label: "Today", value: "today" },
-];
+// const teacherRevenueFilters = [
+//   { label: "All", value: "all" },
+//   { label: "This Month", value: "month" },
+//   { label: "This Week", value: "week" },
+//   { label: "Today", value: "today" },
+// ];
 
 export default function ReceptionistTeachersSection() {
-  const [filter, setFilter] = useState("all");
+  // const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
 
   const { teachers, fetchTeachers, loading, error } = useTeacherStore();
@@ -46,12 +46,12 @@ export default function ReceptionistTeachersSection() {
             onChange={setSearch}
             onClear={() => setSearch("")}
           />
-          <Filter
+          {/* <Filter
             label="Period"
             options={teacherRevenueFilters}
             value={filter}
             onChange={setFilter}
-          />
+          /> */}
         </div>
       </div>
 
