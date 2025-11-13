@@ -46,7 +46,7 @@ export default function Sidebar({ role }: { role: Role }) {
 
   const handleLogout = () => {
     logout()
-    navigate("/login")
+    navigate("/")
   }
 
   return (
