@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { PlusIcon } from "lucide-react";
 import EditButton from "@/components/ui/editButton";
 import { useTeacherStore } from "@/stores/teachersStore";
+import { ConfirmDialog } from "@/components/ui/confirmationDialog";
 
 interface TeachersDialogProps {
   mode: "add" | "edit";
@@ -115,10 +116,32 @@ export default function TeachersDialog({ mode, defaultValues }: TeachersDialogPr
           </div>
         </div>
 
-        <DialogFooter>
-          <Button onClick={handleSubmit}>
-            {mode === "add" ? "Add Teacher" : "Save Changes"}
-          </Button>
+         <DialogFooter>
+          <ConfirmDialog
+            title={mode === "add" ? "Confirm New Teacher" : "Confirm Changes"}
+            description={
+              mode === "add"
+                ? "Are you sure you want to add this teacher?"
+                : "Are you sure you want to save these changes?"
+            }
+            confirmText={mode === "add" ? "Add Teacher" : "Save Changes"}
+            cancelText="Cancel"
+            variant={mode === "add" ? "green" : "normal"}
+            triggerLabel={mode === "add" ? "Add Teacher" : "Save Changes"}
+            onConfirm={handleSubmit}
+          >
+            <div className="text-sm text-gray-600 space-y-1">
+              <p>
+                <strong>Full Name:</strong> {form.fullName || "Not provided"}
+              </p>
+              <p>
+                <strong>Salary:</strong> {form.salary || "Not provided"} DZD
+              </p>
+              <p>
+                <strong>Percentage:</strong> {form.percentage || "Not provided"}%
+              </p>
+            </div>
+          </ConfirmDialog>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -57,7 +57,7 @@ export default function TeachersTable({ data }: TeachersTableProps) {
               </TableCell>
               <TableCell className="flex gap-1 justify-end">
                 <TeachersDialog mode="edit" defaultValues={teacher} />
-                <DeleteButton onClick={()=>{handleDelete(teacher.id)}}/>
+                <DeleteButton onConfirm={()=>{handleDelete(teacher.id)}}/>
               </TableCell>
             </TableRow>
           ))}

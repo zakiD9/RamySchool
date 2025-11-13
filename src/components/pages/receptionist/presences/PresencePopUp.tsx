@@ -28,6 +28,7 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import { ConfirmDialog } from "@/components/ui/confirmationDialog";
 
 interface Student {
   id: number;
@@ -251,11 +252,21 @@ export default function PresenceDialog({ mode, defaultValues }: PresenceDialogPr
           )}
         </div>
 
-        <DialogFooter>
-          <Button onClick={handleSubmit}>
-            {mode === "add" ? "Add Presence" : "Save Changes"}
-          </Button>
-        </DialogFooter>
+       <DialogFooter>
+  <ConfirmDialog
+    title={mode === "add" ? "Confirm New Presence" : "Confirm Changes"}
+    description={
+      mode === "add"
+        ? "Are you sure you want to add this presence record?"
+        : "Are you sure you want to save the changes to this record?"
+    }
+    confirmText={mode === "add" ? "Add Presence" : "Save Changes"}
+    cancelText="Cancel"
+    variant="green"
+    triggerLabel={mode === "add" ? "Add Presence" : "Save Changes"}
+    onConfirm={handleSubmit}
+  />
+</DialogFooter>
       </DialogContent>
     </Dialog>
   );

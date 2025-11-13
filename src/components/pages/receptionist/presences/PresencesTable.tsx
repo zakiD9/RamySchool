@@ -53,13 +53,13 @@ export default function PresencesTable({ data }: PresencesTableProps) {
               <TableCell>{presence.sessionDate}</TableCell>
               <TableCell className="text-center">
                 <Status
-                  value={presence.isPresent ? "active" : "inactive"}
+                  value={presence.isPresent ? "present" : "absent"}
                   label={presence.isPresent ? "Present" : "Absent"}
                 />
               </TableCell>
               <TableCell className="flex gap-1 justify-end">
                 <PresenceDialog mode="edit" defaultValues={presence}  />
-                <DeleteButton onClick={()=>{handleDelete(presence.id)}}/>
+                <DeleteButton onConfirm={()=>{handleDelete(presence.id)}}/>
               </TableCell>
             </TableRow>
           ))}

@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StudentResponse } from "@/services/studentsService";
+import { ConfirmDialog } from "@/components/ui/confirmationDialog";
 
 interface StudentsDialogProps {
   mode: "add" | "edit";
@@ -167,10 +168,34 @@ export default function StudentsDialog({ mode, defaultValues }: StudentsDialogPr
         </div>
 
         <DialogFooter>
-          <Button onClick={handleSubmit}>
-            {mode === "add" ? "Add Student" : "Save Changes"}
-          </Button>
-        </DialogFooter>
+  <ConfirmDialog
+    title={mode === "add" ? "Confirm New Student" : "Confirm Changes"}
+    description={
+      mode === "add"
+        ? "Are you sure you want to add this student?"
+        : "Are you sure you want to save these changes?"
+    }
+    confirmText={mode === "add" ? "Add Student" : "Save Changes"}
+    cancelText="Cancel"
+    variant={mode === "add" ? "green" : "normal"}
+    triggerLabel={mode === "add" ? "Add Student" : "Save Changes"}
+    onConfirm={handleSubmit}
+  >
+    <div className="text-sm text-gray-600 space-y-1">
+      <p>
+        <strong>Name:</strong> {form.name || "Not provided"}
+      </p>
+      <p>
+        <strong>Phone:</strong> {form.phoneNumber || "Not provided"}
+      </p>
+      <p>
+        <strong>Group:</strong>{" "}
+        {groups.find((g) => g.id === form.groupId)?.name || "Not selected"}
+      </p>
+    </div>
+  </ConfirmDialog>
+</DialogFooter>
+
       </DialogContent>
     </Dialog>
   );

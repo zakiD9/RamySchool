@@ -49,7 +49,7 @@ export default function SessionsTable({ data }: SessionsTableProps) {
 <SessionsDialog
   mode="edit"
   defaultValues={session}
-/>                <DeleteButton onClick={()=>handleDelete(session.id)}/>
+/>                <DeleteButton onConfirm={()=>handleDelete(session.id)}/>
               </TableCell>
             </TableRow>
           ))}

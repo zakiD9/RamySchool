@@ -79,7 +79,7 @@ export default function StudentsTable({ data }: StudentsTableProps) {
 
               <TableCell className="flex gap-1 justify-end">
                 <StudentsDialog defaultValues={student} mode="edit" />
-                <DeleteButton onClick={() => handleDelete(student.id)} />
+                <DeleteButton onConfirm={() => handleDelete(student.id)} />
               </TableCell>
             </TableRow>
           ))}

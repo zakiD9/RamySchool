@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import EditButton from "@/components/ui/editButton";
 import { useGroupStore } from "@/stores/groupStore";
 import { useTeacherStore } from "@/stores/teachersStore";
+import { ConfirmDialog } from "@/components/ui/confirmationDialog";
 
 interface GroupDialogProps {
   mode: "add" | "edit";
@@ -170,10 +171,20 @@ export default function GroupDialog({
         </div>
 
         <DialogFooter>
-          <Button onClick={handleSubmit}>
-            {mode === "add" ? "Add Group" : "Save Changes"}
-          </Button>
-        </DialogFooter>
+  <ConfirmDialog
+    title={mode === "add" ? "Create New Group" : "Save Changes?"}
+    description={
+      mode === "add"
+        ? "Are you sure you want to create this new group?"
+        : "Are you sure you want to save the changes to this group?"
+    }
+    confirmText={mode === "add" ? "Create" : "Save"}
+    cancelText="Cancel"
+    variant="green"
+    triggerLabel={mode === "add" ? "Add Group" : "Save Changes"}
+    onConfirm={handleSubmit}
+  />
+</DialogFooter>
       </DialogContent>
     </Dialog>
   );

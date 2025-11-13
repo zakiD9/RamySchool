@@ -14,6 +14,7 @@ import { PlusIcon } from "lucide-react";
 import EditButton from "@/components/ui/editButton";
 import { useGroupStore } from "@/stores/groupStore";
 import { useSessionStore } from "@/stores/sessionsStore";
+import { ConfirmDialog } from "@/components/ui/confirmationDialog";
 
 interface SessionsDialogProps {
   mode: "add" | "edit";
@@ -153,10 +154,39 @@ const handleSubmit = async () => {
         </div>
 
         <DialogFooter>
-          <Button onClick={handleSubmit}>
-            {mode === "add" ? "Add Session" : "Save Changes"}
-          </Button>
-        </DialogFooter>
+  <ConfirmDialog
+    title={mode === "add" ? "Confirm New Session" : "Confirm Changes"}
+    description={
+      mode === "add"
+        ? "Are you sure you want to add this new session?"
+        : "Are you sure you want to save changes to this session?"
+    }
+    confirmText={mode === "add" ? "Add Session" : "Save Changes"}
+    cancelText="Cancel"
+    variant="green"
+    triggerLabel={mode === "add" ? "Add Session" : "Save Changes"}
+    onConfirm={handleSubmit}
+  >
+    <div className="text-sm text-gray-600 space-y-1">
+      <p>
+        <strong>Type:</strong> {form.type === 1 ? "Free Session" : "Paid Session"}
+      </p>
+      <p>
+        <strong>Date:</strong> {form.dateSession || "Not selected"}
+      </p>
+      {form.type === 0 && (
+        <p>
+          <strong>Price:</strong> {form.price ? `${form.price} DZD` : "Not set"}
+        </p>
+      )}
+      <p>
+        <strong>Group:</strong>{" "}
+        {groups.find((g) => g.id.toString() === form.groupId)?.name || "Not selected"}
+      </p>
+    </div>
+  </ConfirmDialog>
+</DialogFooter>
+
       </DialogContent>
     </Dialog>
   );

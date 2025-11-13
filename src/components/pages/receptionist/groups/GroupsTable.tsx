@@ -77,7 +77,7 @@ export default function GroupsTable({ data }: GroupsTableProps) {
                     students: group.students,
                   }}
                 />
-                <DeleteButton onClick={() => handleDelete(group.id)} />
+                <DeleteButton onConfirm={() => handleDelete(group.id)} />
               </TableCell>
             </TableRow>
           ))}
