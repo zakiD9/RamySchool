@@ -14,7 +14,7 @@ const sampleData = [
 ]
 
 export default function DirectorDashboard() {
-  const { total, net, getNet , getTotal } = useFinanceStore()
+  const { total, net, getNet, getTotal } = useFinanceStore()
 
   useEffect(() => {
     getTotal()
@@ -45,21 +45,23 @@ export default function DirectorDashboard() {
   ]
 
   return (
-    <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold">Dashboard</h2>
+    <div className="flex flex-col gap-6 p-4 sm:p-6">
+      <h2 className="text-xl sm:text-2xl font-semibold">Dashboard</h2>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {revenues.map((revenue) => (
           <StatCard key={revenue.id} {...revenue} />
         ))}
       </div>
 
-      <ChartCard
-        title="Net Income"
-        data={sampleData.map((d) => ({ ...d, value: Math.round(d.value * 0.6) }))}
-        stroke="#F59E0B"
-        height={280}
-      />
+      <div className="mt-6">
+        <ChartCard
+          title="Net Income"
+          data={sampleData.map((d) => ({ ...d, value: Math.round(d.value * 0.6) }))}
+          stroke="#F59E0B"
+          height={280}
+        />
+      </div>
     </div>
   )
 }
