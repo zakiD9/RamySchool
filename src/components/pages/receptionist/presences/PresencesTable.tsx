@@ -28,10 +28,6 @@ export default function PresencesTable({ data }: PresencesTableProps) {
     await removePresence(id);
   };
 
-  const handleAddPresence = (student: StudentResponse) => {
-  setSelectedStudent(student);
-  setOpenDialog(true);
-};
 
   const handleCheckboxClick = (student: StudentResponse) => {
     setSelectedStudent(student);
@@ -56,7 +52,6 @@ export default function PresencesTable({ data }: PresencesTableProps) {
               <TableCell className="font-medium">{student.name}</TableCell>
               <TableCell>{student.groupName}</TableCell>
 
-              {/* Presences slots */}
               <TableCell className="flex items-center justify-center gap-1">
                 {[0, 1, 2, 3].map((index) => {
                   const presence = student.presences[index];

@@ -23,7 +23,7 @@ export default function PresencesSection() {
       {error && <p className="text-red-500">{error}</p>}
 
       {!loading && !error && students.length > 0 && sessions.length > 0 && (
-        <PresencesTable data={students} sessions={sessions} />
+        <PresencesTable data={students} />
       )}
 
       {!loading && !error && students.length === 0 && (
