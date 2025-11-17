@@ -117,7 +117,7 @@ const handleSubmit = async () => {
           <div>
             <Label>Session Date</Label>
             <Input
-              type="date"
+              type="datetime-local"
               value={form.dateSession}
               onChange={(e) =>
                 setForm({ ...form, dateSession: e.target.value })

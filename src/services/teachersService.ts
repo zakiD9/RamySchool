@@ -40,19 +40,28 @@ export interface TeacherResponse {
   groups: Group[];
 }
 
-// ✅ Fetch all teachers
+export interface SessionResponse{
+    sessionId: number;
+    sessionNumber: number;
+    date: string;
+    isPresent: boolean;
+}
+
 export async function fetchTeachers(): Promise<TeacherResponse[]> {
   const res = await api.get("/Teachers");
   return res.data;
 }
 
-// ✅ Add a new teacher
+export async function fetchStudentSessionsForTeacher(studentId: number): Promise<SessionResponse[]> {
+  const res = await api.get(`/Teachers/student/${studentId}/sessions`);
+  return res.data;
+}
+
 export async function addTeacher(data: TeacherRequest): Promise<TeacherResponse> {
   const res = await api.post("/Teachers", data);
   return res.data;
 }
 
-// ✅ Update a teacher
 export async function updateTeacher(
   id: number,
   data: TeacherRequest
@@ -61,7 +70,6 @@ export async function updateTeacher(
   return res.data;
 }
 
-// ✅ Delete a teacher
 export async function deleteTeacher(id: number): Promise<void> {
   await api.delete(`/Teachers/${id}`);
 }

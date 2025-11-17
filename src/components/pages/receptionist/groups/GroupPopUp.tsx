@@ -131,8 +131,9 @@ export default function GroupDialog({
                     {teachers.map((teacher) => (
                       <CommandItem
                         key={teacher.id}
-                        onSelect={() =>
-                          setForm({ ...form, teacherId: teacher.id })
+                        onSelect={() =>{
+                          setForm({ ...form, teacherId: teacher.id });
+                        setTeacherPickerOpen(false);}
                         }
                       >
                         <Check

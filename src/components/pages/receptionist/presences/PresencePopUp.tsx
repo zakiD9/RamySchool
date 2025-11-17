@@ -5,27 +5,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
-import api from "@/lib/api";
-import type { SessionResponse } from "@/types/SessionResponse";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
 import { ConfirmDialog } from "@/components/ui/confirmationDialog";
+import { useSessionStore } from "@/stores/sessionsStore";
+import type { AttendanceResponse } from "@/services/sessionsService";
 
 interface PresenceDialogProps {
   open: boolean;
@@ -34,11 +19,9 @@ interface PresenceDialogProps {
   defaultValues: {
     studentId: number;
     studentName?: string;
-    groupId?: number;
-    sessionId?: number;
-    isPresent?: boolean;
+    attendance?: AttendanceResponse;
   };
-  onConfirm: (data: any) => Promise<void>;
+  onConfirm: () => void;
 }
 
 export default function PresenceDialog({
@@ -48,45 +31,26 @@ export default function PresenceDialog({
   defaultValues,
   onConfirm,
 }: PresenceDialogProps) {
-  const [sessions, setSessions] = useState<SessionResponse[]>([]);
-  const [sessionPickerOpen, setSessionPickerOpen] = useState(false);
+  const { updateAttendanceState } = useSessionStore();
 
-
-  const [form, setForm] = useState({
-    studentId: defaultValues.studentId,
-    sessionId: defaultValues.sessionId || 0,
-    isPresent: defaultValues.isPresent || false,
-  });
+  const [isPresent, setIsPresent] = useState(
+    defaultValues.attendance?.isPresent || false
+  );
 
   useEffect(() => {
     if (open) {
-      fetchSessions();
-      setForm({
-        studentId: defaultValues.studentId,
-        sessionId: defaultValues.sessionId || 0,
-        isPresent: defaultValues.isPresent || false,
-      });
+      setIsPresent(defaultValues.attendance?.isPresent || false);
     }
   }, [open, defaultValues]);
 
-  const fetchSessions = async () => {
-    try {
-      const res = await api.get("/Sessions");
-      setSessions(res.data);
-    } catch (err) {
-      console.error("Failed to fetch sessions", err);
-    }
-  };
-
-  const selectedSessionLabel =
-    sessions.find((s) => s.id === form.sessionId)
-      ? `${sessions.find((s) => s.id === form.sessionId)?.dateSession} — ${
-          sessions.find((s) => s.id === form.sessionId)?.groupName
-        } (${sessions.find((s) => s.id === form.sessionId)?.teacherName})`
-      : "Select session";
-
   const handleSubmit = async () => {
-    await onConfirm(form);
+    if (!defaultValues.attendance) return;
+
+    await updateAttendanceState(
+      defaultValues.attendance.attendanceId,
+      isPresent
+    );
+    onConfirm();
   };
 
   return (
@@ -99,7 +63,7 @@ export default function PresenceDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-4 py-2">
-          {/* Student display only (preselected) */}
+          {/* Student display */}
           <div>
             <Label>Student</Label>
             <p className="border rounded-md p-2 bg-muted text-sm">
@@ -107,60 +71,20 @@ export default function PresenceDialog({
             </p>
           </div>
 
-          {/* Session Picker */}
+          {/* Session display */}
           <div>
             <Label>Session</Label>
-            <Popover
-              open={sessionPickerOpen}
-              onOpenChange={setSessionPickerOpen}
-            >
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className="justify-between w-full"
-                >
-                  {selectedSessionLabel}
-                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[350px] p-0">
-                <Command>
-                  <CommandInput placeholder="Search session (group, teacher, date)..." />
-                  <CommandEmpty>No sessions found.</CommandEmpty>
-                  <CommandGroup>
-                    {sessions.map((session) => (
-                      <CommandItem
-                        key={session.id}
-                        onSelect={() =>
-                          setForm({ ...form, sessionId: session.id })
-                        }
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            form.sessionId === session.id
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {`${session.dateSession} — ${session.groupName} (${session.teacherName})`}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <p className="border rounded-md p-2 bg-muted text-sm">
+              {`Session ID: ${defaultValues.attendance?.sessionId}`}
+            </p>
           </div>
 
           {/* Presence Checkbox */}
           <div className="flex items-center space-x-2 mt-2">
             <Checkbox
               id="isPresent"
-              checked={form.isPresent}
-              onCheckedChange={(checked) =>
-                setForm({ ...form, isPresent: !!checked })
-              }
+              checked={isPresent}
+              onCheckedChange={(checked) => setIsPresent(!!checked)}
             />
             <Label htmlFor="isPresent">Present</Label>
           </div>

@@ -3,6 +3,7 @@ import SessionService, {
   SessionRequest,
   SessionResponse,
 } from "@/services/sessionsService";
+import { AttendanceResponse } from "@/services/sessionsService";
 
 interface SessionState {
   sessions: SessionResponse[];
@@ -15,6 +16,12 @@ interface SessionState {
   addSession: (data: SessionRequest) => Promise<void>;
   updateSession: (id: number, data: SessionRequest) => Promise<void>;
   deleteSession: (id: number) => Promise<void>;
+
+  getStudentSessions: (studentId: number) => Promise<AttendanceResponse[]>;
+  updateAttendanceState: (
+    attendanceId: number,
+    isPresent: boolean
+  ) => Promise<string>;
 }
 
 export const useSessionStore = create<SessionState>((set) => ({
@@ -84,6 +91,30 @@ export const useSessionStore = create<SessionState>((set) => ({
       set({ error: error.message || "Failed to delete session" });
     } finally {
       set({ loading: false });
+    }
+  },
+
+  // ===== New functions =====
+  getStudentSessions: async (studentId: number) => {
+    try {
+      const data = await SessionService.getStudentSessions(studentId);
+      return data;
+    } catch (error: any) {
+      set({ error: error.message || "Failed to fetch student sessions" });
+      return [];
+    }
+  },
+
+  updateAttendanceState: async (attendanceId: number, isPresent: boolean) => {
+    try {
+      const result = await SessionService.updateAttendanceState(
+        attendanceId,
+        isPresent
+      );
+      return result;
+    } catch (error: any) {
+      set({ error: error.message || "Failed to update attendance" });
+      throw error;
     }
   },
 }));

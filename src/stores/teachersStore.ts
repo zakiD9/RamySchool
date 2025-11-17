@@ -6,10 +6,13 @@ import {
   deleteTeacher,
   TeacherRequest,
   TeacherResponse,
+  fetchStudentSessionsForTeacher,
+  SessionResponse,
 } from "@/services/teachersService";
 
 interface TeacherStore {
   teachers: TeacherResponse[];
+  studentSessions: Record<number, SessionResponse[]>;
   loading: boolean;
   error: string | null;
 
@@ -17,10 +20,12 @@ interface TeacherStore {
   addTeacher: (data: TeacherRequest) => Promise<void>;
   updateTeacher: (id: number, data: TeacherRequest) => Promise<void>;
   deleteTeacher: (id: number) => Promise<void>;
+  fetchStudentSessionsForTeacher: (studentId: number) => Promise<void>;
 }
 
 export const useTeacherStore = create<TeacherStore>((set, get) => ({
   teachers: [],
+  studentSessions: {},
   loading: false,
   error: null,
 
@@ -81,4 +86,21 @@ export const useTeacherStore = create<TeacherStore>((set, get) => ({
       set({ loading: false });
     }
   },
+  fetchStudentSessionsForTeacher: async (studentId: number) => {
+    set({ loading: true, error: null });
+    try {
+      const data = await fetchStudentSessionsForTeacher(studentId);
+      set((state) => ({
+        studentSessions: {
+          ...state.studentSessions,
+          [studentId]: data,
+        },
+      }));
+    } catch (error: any) {
+      set({ error: error.message || "Failed to fetch sessions" });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
 }));

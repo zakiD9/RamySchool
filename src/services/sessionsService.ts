@@ -16,6 +16,14 @@ export interface SessionResponse {
   teacherName: string;
 }
 
+export interface AttendanceResponse {
+    attendanceId: number;
+    sessionId: number;
+    sessionType: number;
+    isPresent: boolean;
+    studentId: number;
+  }
+
 const SessionService = {
   
   async getAll(): Promise<SessionResponse[]> {
@@ -26,6 +34,16 @@ const SessionService = {
   
   async getById(id: number): Promise<SessionResponse> {
     const res = await api.get(`/Sessions/${id}`);
+    return res.data;
+  },
+
+  async getStudentSessions(studentId: number): Promise<AttendanceResponse[]> {
+    const res = await api.get(`/Sessions/student/${studentId}`);
+    return res.data;
+  },
+
+  async updateAttendanceState(attendanceId: number, isPresent: boolean): Promise<string> {
+    const res = await api.put(`/Sessions/attendance/${attendanceId}`, {isPresent});
     return res.data;
   },
 

@@ -9,13 +9,6 @@ import {
 } from "@/components/ui/table";
 import DeleteButton from "@/components/ui/deleteButton";
 import StudentsDialog from "./StudentPopUp";
-import { Status } from "@/components/ui/status";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { StudentResponse } from "@/services/studentsService";
 import { useStudentsStore } from "@/stores/studentsStore";
 
@@ -39,7 +32,6 @@ export default function StudentsTable({ data }: StudentsTableProps) {
             <TableHead>Phone Number</TableHead>
             <TableHead>Group Name</TableHead>
             <TableHead>Teacher Name</TableHead>
-            <TableHead className="text-right">Presences</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -52,30 +44,6 @@ export default function StudentsTable({ data }: StudentsTableProps) {
               <TableCell>{student.phoneNumber}</TableCell>
               <TableCell>{student.groupName}</TableCell>
               <TableCell>{student.teacherName}</TableCell>
-
-              <TableCell className="text-right">
-                <TooltipProvider>
-                  <div className="flex justify-end gap-1">
-{student.presences
-  ?.slice(-5)
-  .map((presence, i) => (
-    <Tooltip key={i}>
-      <TooltipTrigger asChild>
-        <Status
-          value={presence.isPresent ? "present" : "absent"}
-          size="sm"
-          className="cursor-default"
-        />
-      </TooltipTrigger>
-      <TooltipContent>
-        {presence.isPresent ? "Present" : "Absent"}
-      </TooltipContent>
-    </Tooltip>
-))}
-
-                  </div>
-                </TooltipProvider>
-              </TableCell>
 
               <TableCell className="flex gap-1 justify-end">
                 <StudentsDialog defaultValues={student} mode="edit" />

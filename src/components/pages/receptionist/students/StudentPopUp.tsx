@@ -12,7 +12,12 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { PlusIcon } from "lucide-react";
 import EditButton from "@/components/ui/editButton";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Status } from "@/components/ui/status";
 import { useGroupStore } from "@/stores/groupStore";
 import { useStudentsStore } from "@/stores/studentsStore";
@@ -25,16 +30,22 @@ import {
 } from "@/components/ui/select";
 import { StudentResponse } from "@/services/studentsService";
 import { ConfirmDialog } from "@/components/ui/confirmationDialog";
+import { useSessionStore } from "@/stores/sessionsStore";
+import { AttendanceResponse } from "@/services/sessionsService";
 
 interface StudentsDialogProps {
   mode: "add" | "edit";
   defaultValues?: StudentResponse;
 }
 
-export default function StudentsDialog({ mode, defaultValues }: StudentsDialogProps) {
+export default function StudentsDialog({
+  mode,
+  defaultValues,
+}: StudentsDialogProps) {
   const [open, setOpen] = useState(false);
   const { groups, fetchGroups } = useGroupStore();
   const { addStudent, editStudent } = useStudentsStore();
+  const { getStudentSessions } = useSessionStore();
 
   const [form, setForm] = useState({
     name: "",
@@ -42,12 +53,14 @@ export default function StudentsDialog({ mode, defaultValues }: StudentsDialogPr
     groupId: 0,
   });
 
-  // ✅ Fetch groups when the dialog opens
+  const [studentSessions, setStudentSessions] = useState<AttendanceResponse[]>([]);
+
+  // Fetch groups when dialog opens
   useEffect(() => {
     if (open) fetchGroups();
   }, [open, fetchGroups]);
 
-  // ✅ Initialize form when editing
+  // Initialize form and fetch student sessions when editing
   useEffect(() => {
     if (defaultValues) {
       setForm({
@@ -55,10 +68,25 @@ export default function StudentsDialog({ mode, defaultValues }: StudentsDialogPr
         phoneNumber: defaultValues.phoneNumber || "",
         groupId: defaultValues.groupId || 0,
       });
+
+      if (mode === "edit") {
+        fetchStudentSessions(defaultValues.id);
+      }
     } else {
       setForm({ name: "", phoneNumber: "", groupId: 0 });
+      setStudentSessions([]);
     }
-  }, [defaultValues, open]);
+  }, [defaultValues, open, mode]);
+
+  const fetchStudentSessions = async (studentId: number) => {
+    try {
+      const sessions = await getStudentSessions(studentId);
+      setStudentSessions(sessions);
+    } catch (err) {
+      console.error("Failed to fetch student sessions:", err);
+      setStudentSessions([]);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!form.name || !form.phoneNumber || !form.groupId) return;
@@ -114,12 +142,13 @@ export default function StudentsDialog({ mode, defaultValues }: StudentsDialogPr
             <Label>Phone Number</Label>
             <Input
               value={form.phoneNumber}
-              onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, phoneNumber: e.target.value })
+              }
               placeholder="e.g. 0551-123-456"
             />
           </div>
 
-          {/* ✅ Group selection */}
           <div>
             <Label>Group</Label>
             <Select
@@ -141,61 +170,62 @@ export default function StudentsDialog({ mode, defaultValues }: StudentsDialogPr
             </Select>
           </div>
 
-          {/* ✅ Show presences only in edit mode */}
-          {mode === "edit" && defaultValues?.presences?.length ? (
+          {mode === "edit" && studentSessions.length > 0 && (
             <div>
               <Label>Recent Presences</Label>
               <div className="flex gap-1 mt-1">
                 <TooltipProvider>
-                  {defaultValues.presences.slice(-5).map((p, i) => (
-                    <Tooltip key={i}>
-                      <TooltipTrigger asChild>
-                        <Status
-                          value={p.isPresent ? "success" : "error"}
-                          size="sm"
-                          label=""
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {p.isPresent ? "Present" : "Absent"}
-                      </TooltipContent>
-                    </Tooltip>
-                  ))}
+                  {studentSessions
+                    .slice(-5)
+                    .map((p, i) => (
+                      <Tooltip key={i}>
+                        <TooltipTrigger asChild>
+                          <Status
+                            value={p.isPresent ? "success" : "error"}
+                            size="sm"
+                            label=""
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {p.isPresent ? "Present" : "Absent"}
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
                 </TooltipProvider>
               </div>
             </div>
-          ) : null}
+          )}
         </div>
 
         <DialogFooter>
-  <ConfirmDialog
-    title={mode === "add" ? "Confirm New Student" : "Confirm Changes"}
-    description={
-      mode === "add"
-        ? "Are you sure you want to add this student?"
-        : "Are you sure you want to save these changes?"
-    }
-    confirmText={mode === "add" ? "Add Student" : "Save Changes"}
-    cancelText="Cancel"
-    variant={mode === "add" ? "green" : "normal"}
-    triggerLabel={mode === "add" ? "Add Student" : "Save Changes"}
-    onConfirm={handleSubmit}
-  >
-    <div className="text-sm text-gray-600 space-y-1">
-      <p>
-        <strong>Name:</strong> {form.name || "Not provided"}
-      </p>
-      <p>
-        <strong>Phone:</strong> {form.phoneNumber || "Not provided"}
-      </p>
-      <p>
-        <strong>Group:</strong>{" "}
-        {groups.find((g) => g.id === form.groupId)?.name || "Not selected"}
-      </p>
-    </div>
-  </ConfirmDialog>
-</DialogFooter>
-
+          <ConfirmDialog
+            title={mode === "add" ? "Confirm New Student" : "Confirm Changes"}
+            description={
+              mode === "add"
+                ? "Are you sure you want to add this student?"
+                : "Are you sure you want to save these changes?"
+            }
+            confirmText={mode === "add" ? "Add Student" : "Save Changes"}
+            cancelText="Cancel"
+            variant={mode === "add" ? "green" : "normal"}
+            triggerLabel={mode === "add" ? "Add Student" : "Save Changes"}
+            onConfirm={handleSubmit}
+          >
+            <div className="text-sm text-gray-600 space-y-1">
+              <p>
+                <strong>Name:</strong> {form.name || "Not provided"}
+              </p>
+              <p>
+                <strong>Phone:</strong> {form.phoneNumber || "Not provided"}
+              </p>
+              <p>
+                <strong>Group:</strong>{" "}
+                {groups.find((g) => g.id === form.groupId)?.name ||
+                  "Not selected"}
+              </p>
+            </div>
+          </ConfirmDialog>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
