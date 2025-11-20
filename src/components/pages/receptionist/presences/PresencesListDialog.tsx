@@ -13,7 +13,16 @@ import { Check, Edit, X } from "lucide-react";
 import { AttendanceResponse } from "@/services/sessionsService";
 import EditButton from "@/components/ui/editButton";
 
-export default function PresencesListDialog({ student, open, onOpenChange }) {
+type PresencesListDialogProps = {
+  student: {
+    id: number;
+    name: string;
+  };
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
+
+export default function PresencesListDialog({ student, open, onOpenChange }: PresencesListDialogProps) {
   const { getStudentSessions, updateAttendanceState } = useSessionStore();
 
   const [sessions, setSessions] = useState<AttendanceResponse[]>([]);
