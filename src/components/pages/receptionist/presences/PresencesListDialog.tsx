@@ -7,11 +7,10 @@ import {
 import { useSessionStore } from "@/stores/sessionsStore";
 import { useState, useEffect } from "react";
 import { Status } from "@/components/ui/status";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check, Edit, X } from "lucide-react";
 import { AttendanceResponse } from "@/services/sessionsService";
 import EditButton from "@/components/ui/editButton";
+import { Check, X } from "lucide-react";
 
 type PresencesListDialogProps = {
   student: {

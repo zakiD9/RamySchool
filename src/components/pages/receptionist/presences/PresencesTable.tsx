@@ -13,7 +13,12 @@ import EditButton from "@/components/ui/editButton";
 import PresencesListDialog from "./PresencesListDialog";
 import { StudentResponse } from "@/services/studentsService";
 
-export default function PresencesTable({ data }) {
+type PresencesTableProps = {
+  data: StudentResponse[];
+};
+
+
+export default function PresencesTable({ data }:PresencesTableProps) {
   const { fetchStudentSessionsForTeacher, studentSessions } = useTeacherStore();
 
   const [selectedStudent, setSelectedStudent] = useState<{
