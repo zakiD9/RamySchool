@@ -20,7 +20,7 @@ export interface AttendanceResponse {
     attendanceId: number;
     sessionId: number;
     sessionType: number;
-    isPresent: boolean;
+    type: 0 | 1 | 2; // 0 = pending, 1 = present, 2 = absent
     studentId: number;
   }
 
@@ -42,8 +42,8 @@ const SessionService = {
     return res.data;
   },
 
-  async updateAttendanceState(attendanceId: number, isPresent: boolean): Promise<string> {
-    const res = await api.put(`/Sessions/attendance/${attendanceId}`, {isPresent});
+  async updateAttendanceState(attendanceId: number, presenceType: number): Promise<string> {
+    const res = await api.put(`/Sessions/attendance/${attendanceId}`, {presenceType});
     return res.data;
   },
 

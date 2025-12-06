@@ -20,7 +20,7 @@ interface SessionState {
   getStudentSessions: (studentId: number) => Promise<AttendanceResponse[]>;
   updateAttendanceState: (
     attendanceId: number,
-    isPresent: boolean
+    isPresent: number
   ) => Promise<string>;
 }
 
@@ -105,11 +105,11 @@ export const useSessionStore = create<SessionState>((set) => ({
     }
   },
 
-  updateAttendanceState: async (attendanceId: number, isPresent: boolean) => {
+  updateAttendanceState: async (attendanceId: number, presenceType: number) => {
     try {
       const result = await SessionService.updateAttendanceState(
         attendanceId,
-        isPresent
+        presenceType
       );
       return result;
     } catch (error: any) {

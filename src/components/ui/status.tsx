@@ -28,7 +28,8 @@ export function Status({
     present: "bg-green-100 text-green-700 border-green-300",
 
     inactive: "bg-gray-100 text-gray-700 border-gray-300",
-    pending: "bg-blue-100 text-blue-700 border-blue-300",
+
+    pending: "bg-yellow-100 text-yellow-700 border-yellow-300",
 
     error: "bg-red-100 text-red-700 border-red-300",
     absent: "bg-red-100 text-red-700 border-red-300",
@@ -46,12 +47,14 @@ export function Status({
     md: "px-3 py-1 text-sm",
   };
 
-  // label fallback: use Present/Absent for those values, otherwise title-case the value
+  // explicit label mapping for pending
   const defaultLabel =
     value === "present"
       ? "Present"
       : value === "absent"
       ? "Absent"
+      : value === "pending"
+      ? "Pending"
       : value.charAt(0).toUpperCase() + value.slice(1);
 
   return (
@@ -67,8 +70,7 @@ export function Status({
         className={cn("rounded-full mr-1.5", dots[size], {
           "bg-green-500": value === "active" || value === "success" || value === "present",
           "bg-red-500": value === "error" || value === "absent",
-          "bg-yellow-500": value === "warning",
-          "bg-blue-500": value === "pending",
+          "bg-yellow-500": value === "pending",
         })}
       />
       {label ?? defaultLabel}
