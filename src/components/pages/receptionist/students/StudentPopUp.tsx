@@ -12,13 +12,13 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { PlusIcon } from "lucide-react";
 import EditButton from "@/components/ui/editButton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Status } from "@/components/ui/status";
+// import {
+//   Tooltip,
+//   TooltipContent,
+//   TooltipProvider,
+//   TooltipTrigger,
+// } from "@/components/ui/tooltip";
+// import { Status } from "@/components/ui/status";
 import { useGroupStore } from "@/stores/groupStore";
 import { useStudentsStore } from "@/stores/studentsStore";
 import {
@@ -170,7 +170,7 @@ export default function StudentsDialog({
             </Select>
           </div>
 
-          {mode === "edit" && studentSessions.length > 0 && (
+          {/* {mode === "edit" && studentSessions.length > 0 && (
             <div>
               <Label>Recent Presences</Label>
               <div className="flex gap-1 mt-1">
@@ -181,20 +181,20 @@ export default function StudentsDialog({
                       <Tooltip key={i}>
                         <TooltipTrigger asChild>
                           <Status
-                            value={p.isPresent ? "success" : "error"}
+                            value={p.type ? "success" : "error"}
                             size="sm"
                             label=""
                           />
                         </TooltipTrigger>
                         <TooltipContent>
-                          {p.isPresent ? "Present" : "Absent"}
+                          {p.type ? "Present" : "Absent"}
                         </TooltipContent>
                       </Tooltip>
                     ))}
                 </TooltipProvider>
               </div>
             </div>
-          )}
+          )} */}
         </div>
 
         <DialogFooter>
